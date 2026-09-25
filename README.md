@@ -7,24 +7,27 @@ ESP32-P4 + LVGL v9 (C). See `Requirements.md`, `Claude_Rules.md`, `Claude_Memory
 
 **https://arlene122.github.io/mini-jet-boat-dash/**
 
-Click the dash, then use the keys listed under it (throttle, fuel, iBR, modes,
-DESS, warnings). Press **H** for on-screen help, **S** to cycle the bezel stencil.
+Click the dash, then use the keys listed under it. **← →** = knob (pages),
+**Enter** = knob push, **↑ ↓** = 5-way, **W/S** = throttle, **M** = mode,
+**1–5** = warnings. **H** = on-screen help, **T** = bezel stencil.
 
 The browser page is only a host: the dash itself is the same C/LVGL code that
 will run on the ESP32-P4, compiled to WebAssembly by GitHub Actions.
 
 ## Stencil image
 
-Put the real bezel stencil at `assets/stencil.png` (1920×720; transparent or
-white = visible screen, dark = covered by bezel). Until then
-`assets/stencil_placeholder.png` is used.
+`assets/stencil.png` is traced from the owner's outline drawing by
+`tools/trace_stencil.py` (edit the corner points there to adjust).
+Transparent = visible screen, dark = bezel.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `src/dash_data/` | The only data the UI reads (sim / replay / real CAN fill it) |
-| `src/ui/` | Screens and widgets (shared by PC and boat) |
+| `src/dash_data/dash_cmd.h` | UI → boat actions (lights, music) |
+| `src/ui/` | Screens and widgets (shared by PC and boat); zones in `ui_layout.h` |
+| `src/ui/pages/` | Page card pages: Marine, Music, Lights, System, Trip |
 | `src/ui/fonts/` | Large digit fonts (Montserrat, OFL licence) |
 | `sim/` | Simulator: SDL main, fake Spark ECU, stencil/help overlay, `lv_conf.h` |
 | `sim/web/shell.html` | Browser page around the WebAssembly build |

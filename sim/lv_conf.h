@@ -1,6 +1,6 @@
 /* LVGL v9.6.0 config for the PC / browser simulator.
  * Based on lv_conf_template.h. Changed: enabled, CLIB stdlib, 16 ms refresh,
- * log on, Montserrat 24/28/32/48, LodePNG (stencil), SDL, no demos/examples. */
+ * log on, Montserrat 16/20/24/28/32/40/48, LodePNG (stencil), SDL, no demos/examples. */
 /**
  * @file lv_conf.h
  * Configuration file for v9.6.0
@@ -1016,13 +1016,13 @@
 #define LV_FONT_MONTSERRAT_14 1
 
 /** Montserrat 16 */
-#define LV_FONT_MONTSERRAT_16 0
+#define LV_FONT_MONTSERRAT_16 1
 
 /** Montserrat 18 */
 #define LV_FONT_MONTSERRAT_18 0
 
 /** Montserrat 20 */
-#define LV_FONT_MONTSERRAT_20 0
+#define LV_FONT_MONTSERRAT_20 1
 
 /** Montserrat 22 */
 #define LV_FONT_MONTSERRAT_22 0
@@ -1052,7 +1052,7 @@
 #define LV_FONT_MONTSERRAT_38 0
 
 /** Montserrat 40 */
-#define LV_FONT_MONTSERRAT_40 0
+#define LV_FONT_MONTSERRAT_40 1
 
 /** Montserrat 42 */
 #define LV_FONT_MONTSERRAT_42 0

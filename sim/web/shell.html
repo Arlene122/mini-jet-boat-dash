@@ -25,23 +25,27 @@
   <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
   <div id="status">Loading…</div>
   <div class="keys">
-    <div><kbd>↑</kbd> <kbd>↓</kbd> throttle</div>
+    <div><b>Dash controls</b></div>
+    <div><kbd>←</kbd> <kbd>→</kbd> knob: previous / next page</div>
+    <div><kbd>Enter</kbd> knob push: select / acknowledge warning</div>
+    <div><kbd>↑</kbd> <kbd>↓</kbd> 5-way: move inside a page</div>
+    <div><kbd>Esc</kbd> home page</div>
+    <div><b>Fake engine</b></div>
+    <div><kbd>W</kbd> <kbd>S</kbd> throttle up / down</div>
     <div><kbd>Space</kbd> throttle off</div>
-    <div><kbd>←</kbd> <kbd>→</kbd> fuel −/+</div>
+    <div><kbd>-</kbd> <kbd>=</kbd> fuel −/+</div>
     <div><kbd>F</kbd> <kbd>N</kbd> <kbd>R</kbd> <kbd>B</kbd> iBR fwd/neutral/rev/brake</div>
-    <div><kbd>M</kbd> riding mode</div>
-    <div><kbd>K</kbd> DESS key on/off</div>
-    <div><kbd>1</kbd>–<kbd>5</kbd> check eng/oil/overheat/low fuel/low batt</div>
-    <div><kbd>0</kbd> clear warnings</div>
-    <div><kbd>A</kbd> auto demo</div>
-    <div><kbd>S</kbd> stencil 100% / 50% / off</div>
-    <div><kbd>H</kbd> show/hide help on screen</div>
+    <div><kbd>M</kbd> riding mode (changes colour)</div>
+    <div><kbd>K</kbd> DESS key · <kbd>P</kbd> phone on/off</div>
+    <div><kbd>1</kbd>–<kbd>5</kbd> engine/oil/overheat/low fuel/low batt</div>
+    <div><kbd>0</kbd> clear warnings · <kbd>A</kbd> auto demo</div>
+    <div><kbd>T</kbd> stencil · <kbd>H</kbd> on-screen help</div>
   </div>
 </main>
 <script>
   // Stop arrow keys / space from scrolling the page.
   window.addEventListener('keydown', e => {
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Backspace'].includes(e.key)) e.preventDefault();
   });
   var statusEl = document.getElementById('status');
   var Module = {

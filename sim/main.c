@@ -11,6 +11,7 @@
 
 #include "../src/dash_data/dash_data.h"
 #include "../src/ui/ui.h"
+#include "../src/ui/ui_input.h"
 #include "fake_ecu.h"
 #include "sim_overlay.h"
 
@@ -22,7 +23,17 @@ static int key_watch(void * user, SDL_Event * e)
     LV_UNUSED(user);
     if(e->type != SDL_KEYDOWN) return 0;
     int key = e->key.keysym.sym;
-    if(!fake_ecu_key(key)) sim_overlay_key(key);
+    if(fake_ecu_key(key) || sim_overlay_key(key)) return 0;
+    switch(key) {   /* dash controls: knob + 5-way */
+        case SDLK_RIGHT:     ui_input(UI_IN_NEXT); break;
+        case SDLK_LEFT:      ui_input(UI_IN_PREV); break;
+        case SDLK_RETURN:    ui_input(UI_IN_SELECT); break;
+        case SDLK_BACKSPACE:
+        case SDLK_ESCAPE:    ui_input(UI_IN_HOME); break;
+        case SDLK_UP:        ui_input(UI_IN_UP); break;
+        case SDLK_DOWN:      ui_input(UI_IN_DOWN); break;
+        default: break;
+    }
     return 0;
 }
 
