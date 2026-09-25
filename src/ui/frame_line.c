@@ -69,9 +69,9 @@ static void frame_draw_cb(lv_event_t * e)
     lv_color_t acc = ui_theme_accent();
     lv_layer_t * layer = lv_event_get_layer(e);
     lv_color_t deep = ui_theme_tone(TONE_DEEP);
-    draw_pass(layer, p, n, lv_color_mix(deep, C_BG, LV_OPA_20), 14, LV_OPA_COVER);
-    draw_pass(layer, p, n, lv_color_mix(deep, C_BG, LV_OPA_60), 6, LV_OPA_COVER);
-    draw_pass(layer, p, n, lv_color_mix(ui_theme_tone(TONE_LIGHT), acc, LV_OPA_40), 2, LV_OPA_COVER);
+    draw_pass(layer, p, n, lv_color_mix(deep, C_BG, LV_OPA_20), 8, LV_OPA_COVER);
+    draw_pass(layer, p, n, lv_color_mix(deep, C_BG, LV_OPA_60), 4, LV_OPA_COVER);
+    draw_pass(layer, p, n, lv_color_mix(acc, ui_theme_tone(TONE_MID), LV_OPA_60), 2, LV_OPA_COVER);
 }
 
 static void frame_delete_cb(lv_event_t * e)

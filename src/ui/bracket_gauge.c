@@ -14,7 +14,7 @@
 
 #define PAD      18
 #define W_TRACK  12
-#define W_GLOW   24
+#define W_GLOW   16
 #define W_CORE   9
 #define W_HI     3
 #define SUBSTEPS 28          /* colour steps along the fill */
@@ -97,7 +97,8 @@ static void bracket_draw_cb(lv_event_t * e)
     path_init(&pa, b, &a);
 
     /* Track */
-    for(int i = 0; i < 3; i++) seg(layer, pa.q[i], pa.q[i + 1], C_LINE, W_TRACK);
+    lv_color_t track_c = b->st == BRACKET_NORMAL ? ui_theme_tone(TONE_TRACK) : C_LINE;
+    for(int i = 0; i < 3; i++) seg(layer, pa.q[i], pa.q[i + 1], track_c, W_TRACK);
 
     /* Ticks at 25/50/75 %, on the side facing the ring */
     float cx = (a.x1 + a.x2) / 2.0f, mx = (pa.q[1].x + pa.q[2].x) / 2.0f;
@@ -118,10 +119,10 @@ static void bracket_draw_cb(lv_event_t * e)
     lv_color_t deep, main, light;
     if(b->st == BRACKET_CRIT) { main = C_RED; deep = lv_color_hex(0x8A1C1E); light = lv_color_hex(0xFFC2C3); }
     else if(b->st == BRACKET_WARN) { main = C_AMBER; deep = lv_color_hex(0x8A5A06); light = lv_color_hex(0xFFE3A8); }
-    else { main = ui_theme_tone(TONE_MAIN); deep = ui_theme_tone(TONE_DEEP); light = ui_theme_tone(TONE_LIGHT); }
+    else { main = ui_theme_tone(TONE_MAIN); deep = ui_theme_tone(TONE_MID); light = ui_theme_tone(TONE_LIGHT); }
 
     float len = pa.total * b->permille / 1000.0f;
-    stroke(layer, &pa, len, lv_color_mix(deep, C_BG, LV_OPA_30), lv_color_mix(main, C_BG, LV_OPA_30), W_GLOW);
+    stroke(layer, &pa, len, lv_color_mix(deep, C_BG, LV_OPA_20), lv_color_mix(main, C_BG, LV_OPA_20), W_GLOW);
     stroke(layer, &pa, len, deep, main, W_CORE);
     stroke(layer, &pa, len, main, light, W_HI);
 

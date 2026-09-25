@@ -9,7 +9,7 @@
 /* ---------- Style ---------- */
 
 #define TILT_DARK   lv_color_hex(0x0A0F16)
-#define TILT_TINT   LV_OPA_20        /* accent mixed into the middle */
+#define TILT_TINT   LV_OPA_10        /* accent mixed into the middle */
 
 typedef struct {
     int32_t inset;
@@ -68,9 +68,9 @@ static void tilt_bar_draw_cb(lv_event_t * e)
     /* Bright line along the outer (wide) edge, fading at the ends */
     lv_draw_line_dsc_t ld;
     lv_draw_line_dsc_init(&ld);
-    ld.color = acc;
-    ld.width = 2;
-    ld.opa = LV_OPA_70;
+    ld.color = ui_theme_tone(TONE_MID);
+    ld.width = 1;
+    ld.opa = LV_OPA_COVER;
     ld.p1.x = a.x1 + in * 2; ld.p1.y = y_outer;
     ld.p2.x = a.x2 - in * 2; ld.p2.y = y_outer;
     lv_draw_line(layer, &ld);

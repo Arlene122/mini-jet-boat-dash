@@ -9,23 +9,31 @@
 #include "../dash_data/dash_data.h"
 
 /* ---------- Palette ---------- */
-#define C_BG      lv_color_hex(0x05070A)
-#define C_PANEL   lv_color_hex(0x0C1117)
-#define C_LINE    lv_color_hex(0x1C2632)
-#define C_TEXT    lv_color_hex(0xEAF2F8)
-#define C_DIM     lv_color_hex(0x6B7886)
-#define C_OFF     lv_color_hex(0x263241)
-#define C_RED     lv_color_hex(0xFF4D4F)
-#define C_AMBER   lv_color_hex(0xFFB020)
+/* Luxury: warm white, graphite greys, calm alert colours */
+#define C_BG      lv_color_hex(0x060708)
+#define C_PANEL   lv_color_hex(0x0E1013)
+#define C_LINE    lv_color_hex(0x1F2328)
+#define C_TEXT    lv_color_hex(0xF1EEE9)
+#define C_DIM     lv_color_hex(0x80838A)
+#define C_OFF     lv_color_hex(0x2D3238)
+#define C_RED     lv_color_hex(0xF2555A)
+#define C_AMBER   lv_color_hex(0xF0B04A)
 
 void ui_theme_init(void);
 void ui_theme_set_mode(dash_mode_t mode);
 lv_color_t ui_theme_accent(void);
 
 /* Tones of the current accent (all follow the riding mode):
- * DEEP = saturated/dark (glows, depth), MAIN = accent, LIGHT = highlights,
- * SOFT = muted tint for captions and hairlines */
-typedef enum { TONE_DEEP = 0, TONE_MAIN, TONE_LIGHT, TONE_SOFT, TONE_COUNT } ui_tone_t;
+ * (see ui_tone_t) */
+typedef enum {
+    TONE_DEEP = 0,   /* dark, saturated: glows, depth */
+    TONE_MID,        /* between deep and main: fill start, secondary marks */
+    TONE_MAIN,       /* the accent */
+    TONE_LIGHT,      /* highlights, fill tips */
+    TONE_SOFT,       /* muted: captions, units */
+    TONE_TRACK,      /* barely tinted: empty tracks */
+    TONE_COUNT
+} ui_tone_t;
 lv_color_t ui_theme_tone(ui_tone_t t);
 
 /* Accent pre-mixed into the background (opaque, no overlap artefacts) */
@@ -42,5 +50,6 @@ lv_style_t * ui_style_accent_dim(void);    /* arc colour, faint hairline */
 lv_style_t * ui_style_disc(void);          /* gauge disc: dark, accent-tinted */
 lv_style_t * ui_style_card(void);          /* page card background */
 lv_style_t * ui_style_soft_text(void);     /* SOFT tone text (captions, units) */
+lv_style_t * ui_style_track_arc(void);     /* TRACK tone arc (empty ring track) */
 
 #endif /* UI_THEME_H */
