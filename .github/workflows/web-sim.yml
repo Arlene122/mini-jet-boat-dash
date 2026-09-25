@@ -1,0 +1,70 @@
+# Builds the LVGL simulator to WebAssembly and publishes it to GitHub Pages.
+# Every push builds (catches compile errors); only pushes to main deploy.
+name: Web simulator
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  EMSDK_VERSION: 3.1.74
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python + Pillow (stencil converter)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+
+      - name: Cache Emscripten
+        uses: actions/cache@v4
+        with:
+          path: ~/emsdk
+          key: emsdk-${{ env.EMSDK_VERSION }}-v1
+
+      - name: Install Emscripten
+        run: |
+          if [ ! -d ~/emsdk ]; then git clone --depth 1 https://github.com/emscripten-core/emsdk.git ~/emsdk; fi
+          ~/emsdk/emsdk install $EMSDK_VERSION
+          ~/emsdk/emsdk activate $EMSDK_VERSION
+
+      - name: Build
+        run: |
+          source ~/emsdk/emsdk_env.sh
+          emcmake cmake -S sim -B build-web -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-web -j
+
+      - name: Collect site
+        run: |
+          mkdir site
+          cp build-web/index.html build-web/index.js build-web/index.wasm site/
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
