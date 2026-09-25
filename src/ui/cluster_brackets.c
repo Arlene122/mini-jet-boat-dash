@@ -48,8 +48,8 @@ void cluster_brackets_create(lv_obj_t * parent)
     s_fuel_brk = bracket_gauge_create(parent, r);
 
     /* Numbers sit inside the long side, just below the 50 % tick */
-    s_rpm = value_block(parent, BRK_OUT_X + 22, GAUGE_CY + 12, LV_ALIGN_TOP_LEFT, "RPM");
-    s_fuel = value_block(parent, -(BRK_OUT_X + 22), GAUGE_CY + 12, LV_ALIGN_TOP_RIGHT, "FUEL");
+    s_rpm = value_block(parent, BRK_OUT_X + 14, GAUGE_CY + 40, LV_ALIGN_TOP_LEFT, "RPM");
+    s_fuel = value_block(parent, -(BRK_OUT_X + 14), GAUGE_CY + 40, LV_ALIGN_TOP_RIGHT, "FUEL");
 }
 
 void cluster_brackets_update(const dash_data_t * d, bool bars)

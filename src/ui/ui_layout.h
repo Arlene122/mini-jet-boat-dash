@@ -39,9 +39,11 @@
  * FUEL). Symmetric top/bottom, so the middle of the long side = 50 %.
  * Points: top-inner, outer-top, outer-bottom, bottom-inner. */
 #define BRK_IN_X       700
-#define BRK_OUT_X      600
+#define BRK_OUT_X      610
 #define BRK_TOP_Y      150
-#define BRK_MID_Y1     262          /* long straight side: MID_Y1..MID_Y2 */
+#define BRK_MID_Y1     210          /* long straight side: MID_Y1..MID_Y2 (300 px);
+                                       short angled ends ~108 px.
+                                       Previous "even hexagon": OUT_X 600, MID_Y1 262 */
 #define BRK_MID_Y2     (2 * GAUGE_CY - BRK_MID_Y1)
 #define BRK_BOT_Y      (2 * GAUGE_CY - BRK_TOP_Y)
 

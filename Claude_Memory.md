@@ -19,7 +19,7 @@ _Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 
 ## 3. UI (current)
 - Frame: glowing accent lines top/bottom with centre "pinch"; tilted gradient bars in the notch (top: trip|clock|hours; bottom: mode|warnings|DESS·source).
-- Centre: glowing 270° speed ring + digital speed, alt unit, iBR pill. Mirrored **half-hexagon** gauges (top/bottom symmetric → middle = 50 %, ticks 25/50/75): RPM left (red ≥7000), FUEL right (amber ≤15%).
+- Centre: glowing 270° speed ring + digital speed, alt unit, iBR pill. Mirrored **half-hexagon** gauges (top/bottom symmetric → middle = 50 %, ticks 25/50/75; **testing** long straight side 300 px / short ends — revert = `BRK_OUT_X 600, BRK_MID_Y1 262` in ui_layout.h): RPM left (red ≥7000), FUEL right (amber ≤15%).
 - Left zone (keep clean): status icons (log, Wi-Fi, GPS, BT) + engine temp, battery, fuel use; fading hairline edge.
 - Right page zone (no box, fading hairline): swipe pages **NAV, MUSIC, LIGHTS, RIDE**.
   - NAV: push toggles **Map** (map fills panel; offline tiles later) ↔ **Marine** (compass, depth, water temp, tide chart w/ next low/high times, coords).
