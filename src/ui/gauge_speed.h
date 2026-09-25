@@ -14,8 +14,8 @@
 
 void gauge_speed_create(lv_obj_t * parent);
 
-/* Ring only (key-on sweep) */
-void gauge_speed_set_arc(int32_t speed_kmh);
+/* Ring only (key-on sweep), in 0.1 km/h */
+void gauge_speed_set_arc(int32_t speed_dkmh);
 
 /* Numbers, ring, iBR */
 void gauge_speed_update(const dash_data_t * d, bool arc);

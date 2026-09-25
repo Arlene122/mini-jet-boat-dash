@@ -24,7 +24,7 @@ static const ui_page_t * const PAGES[] = {
 
 /* ---------- State ---------- */
 
-static lv_obj_t * s_zone, * s_title, * s_dots, * s_settings;
+static lv_obj_t * s_zone, * s_title, * s_dots, * s_settings, * s_hint;
 static bool s_in_settings;
 static lv_obj_t * s_content[PAGE_COUNT];
 static lv_obj_t * s_dot[PAGE_COUNT];
@@ -38,6 +38,7 @@ static void show_page(int idx)
     if(s_in_settings) {                  /* leaving settings */
         s_in_settings = false;
         lv_obj_set_hidden(s_settings, true);
+        lv_obj_set_hidden(s_hint, true);
         lv_obj_set_hidden(s_dots, false);
     }
     lv_obj_set_hidden(s_content[s_cur], true);
@@ -69,6 +70,11 @@ void page_host_create(lv_obj_t * parent)
     lv_obj_set_style_pad_column(dots, 6, 0);
     lv_obj_align(dots, LV_ALIGN_TOP_RIGHT, 0, 22);
     s_dots = dots;
+    s_hint = ui_caption(s_zone, "HOLD KNOB TO CLOSE");
+    lv_obj_set_style_text_font(s_hint, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_letter_space(s_hint, 1, 0);
+    lv_obj_align(s_hint, LV_ALIGN_TOP_RIGHT, 0, 16);
+    lv_obj_set_hidden(s_hint, true);
 
     ui_fade_line(s_zone, PAD_L, HEAD_H - 14, PAGE_CONTENT_W, false, LV_OPA_50);
 
@@ -95,6 +101,7 @@ static void open_settings(void)
     s_in_settings = true;
     lv_obj_set_hidden(s_content[s_cur], true);
     lv_obj_set_hidden(s_dots, true);
+    lv_obj_set_hidden(s_hint, false);
     lv_obj_set_hidden(s_settings, false);
     lv_label_set_text(s_title, page_settings.title);
     lv_obj_fade_in(s_settings, 180, 0);

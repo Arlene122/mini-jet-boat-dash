@@ -42,9 +42,9 @@ static void create(lv_obj_t * p)
     ui_fade_line(p, 114, 136, 60, true, LV_OPA_40);
     ui_fade_line(p, 231, 136, 60, true, LV_OPA_40);
 
-    s_fuel = page_list_row(p, 212, "FUEL USED", NULL);
-    s_hours = page_list_row(p, 212 + LIST_ROW_H + 4, "ENGINE HOURS", NULL);
-    s_code = page_list_row(p, 212 + 2 * (LIST_ROW_H + 4), "ERROR CODE", NULL);
+    s_fuel = page_list_row(p, 220, "FUEL USED", NULL);
+    s_hours = page_list_row(p, 220 + LIST_ROW_H + 8, "ENGINE HOURS", NULL);
+    s_code = page_list_row(p, 220 + 2 * (LIST_ROW_H + 8), "ERROR CODE", NULL);
 }
 
 static void update(const dash_data_t * d)

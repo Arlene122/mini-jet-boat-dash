@@ -29,6 +29,7 @@ LV_FONT_DECLARE(font_digits_160);
 static lv_obj_t * s_glow, * s_core, * s_hi, * s_scale;
 static lv_obj_t * s_speed, * s_unit, * s_alt;
 static lv_obj_t * s_pill, * s_slot[3], * s_brake;
+static int s_shown_speed = -1;   /* number hysteresis: no flicker between two values */
 
 /* ---------- Helpers ---------- */
 
@@ -41,7 +42,7 @@ static lv_obj_t * ring(lv_obj_t * parent, int32_t r, int32_t w, int32_t a0, int3
     lv_obj_set_clickable(a, false);
     lv_arc_set_rotation(a, ROT);
     lv_arc_set_bg_angles(a, a0, a1);
-    lv_arc_set_range(a, 0, GAUGE_SPEED_MAX);
+    lv_arc_set_range(a, 0, GAUGE_SPEED_MAX * 10);   /* 0.1 km/h steps: smooth sweep */
     lv_arc_set_value(a, 0);
     lv_obj_set_style_arc_width(a, w, LV_PART_MAIN);
     lv_obj_set_style_arc_width(a, w, LV_PART_INDICATOR);
@@ -170,22 +171,25 @@ void gauge_speed_apply_settings(void)
     lv_label_set_text(s_unit, settings_speed_unit());
 }
 
-void gauge_speed_set_arc(int32_t speed_kmh)
+void gauge_speed_set_arc(int32_t speed_dkmh)
 {
-    if(speed_kmh > GAUGE_SPEED_MAX) speed_kmh = GAUGE_SPEED_MAX;
-    if(lv_arc_get_value(s_core) == speed_kmh) return;
-    lv_arc_set_value(s_glow, speed_kmh);
-    lv_arc_set_value(s_core, speed_kmh);
-    lv_arc_set_value(s_hi, speed_kmh);
+    speed_dkmh = LV_CLAMP(0, speed_dkmh, GAUGE_SPEED_MAX * 10);
+    if(lv_arc_get_value(s_core) == speed_dkmh) return;
+    lv_arc_set_value(s_glow, speed_dkmh);
+    lv_arc_set_value(s_core, speed_dkmh);
+    lv_arc_set_value(s_hi, speed_dkmh);
 }
 
 void gauge_speed_update(const dash_data_t * d, bool arc)
 {
-    ui_label_printf(s_speed, "%d", (int)(settings_speed(d->speed_kmh) + 0.5f));
+    /* Only change the number once the speed is clearly past the next value */
+    float sp = settings_speed(d->speed_kmh);
+    if(s_shown_speed < 0 || sp > s_shown_speed + 0.8f || sp < s_shown_speed - 0.8f) s_shown_speed = (int)(sp + 0.5f);
+    ui_label_printf(s_speed, "%d", s_shown_speed);
     float alt = settings_speed_alt(d->speed_kmh);
     ui_label_printf(s_alt, "%d.%d %s", (int)(alt * 10 + 0.5f) / 10, (int)(alt * 10 + 0.5f) % 10,
                     settings_speed_alt_unit());
-    if(arc) gauge_speed_set_arc((int32_t)(d->speed_kmh + 0.5f));
+    if(arc) gauge_speed_set_arc((int32_t)(d->speed_kmh * 10.0f + 0.5f));
 
     bool brake = d->ibr == DASH_IBR_BRAKE;
     int active = d->ibr == DASH_IBR_REVERSE ? 0 : d->ibr == DASH_IBR_FORWARD ? 2 : 1;

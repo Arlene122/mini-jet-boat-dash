@@ -7,19 +7,20 @@
 
 #include "../ui_theme.h"
 #include "../ui_util.h"
+#include "../page_host.h"
 #include "../../settings/settings.h"
 
 /* ---------- Rows ---------- */
 
 typedef enum {
-    ROW_SPEED = 0, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_WIFI, ROW_FUEL, ROW_ABOUT, ROW_COUNT
+    ROW_SPEED = 0, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_WIFI, ROW_FUEL, ROW_ABOUT, ROW_CLOSE, ROW_COUNT
 } row_t;
 static const char * ROW_NAME[ROW_COUNT] = {
     "SPEED UNIT", "TEMPERATURE", "CLOCK", "BRIGHTNESS", "RIDE LOGGING", "WI-FI HOTSPOT",
-    "FUEL CALIBRATION", "SOFTWARE",
+    "FUEL CALIBRATION", "SOFTWARE", "CLOSE SETTINGS",
 };
 
-#define ROW_STEP (LIST_ROW_H + 2)
+#define ROW_STEP (LIST_ROW_H + 1)
 #define SW_VERSION "v0.4 sim"
 
 static lv_obj_t * s_row[ROW_COUNT], * s_val[ROW_COUNT], * s_mark;
@@ -40,11 +41,12 @@ static void show(void)
     ui_label_printf(s_val[ROW_WIFI], "%s", dash_data_get()->wifi_ok ? "Joined" : "Off");
     ui_label_printf(s_val[ROW_FUEL], "Later");
     ui_label_printf(s_val[ROW_ABOUT], "%s", SW_VERSION);
+    ui_label_printf(s_val[ROW_CLOSE], "%s", LV_SYMBOL_CLOSE);
     for(int i = 0; i < ROW_COUNT; i++) {
         if(i == s_focus) lv_obj_add_style(s_val[i], ui_style_accent_text(), 0);
         else lv_obj_remove_style(s_val[i], ui_style_accent_text(), 0);
     }
-    lv_obj_set_y(s_mark, s_focus * ROW_STEP + 12);
+    lv_obj_set_y(s_mark, s_focus * ROW_STEP + 10);
 }
 
 static void change(void)
@@ -56,6 +58,7 @@ static void change(void)
         case ROW_CLOCK:  s.clock_12h ^= 1; break;
         case ROW_BRIGHT: s.brightness = s.brightness >= 100 ? 20 : s.brightness + 10; break;
         case ROW_LOG:    s.logging ^= 1; break;
+        case ROW_CLOSE:  s_focus = 0; page_host_toggle_settings(); return;
     }
     settings_update(&s);
 }
@@ -68,7 +71,7 @@ static void create(lv_obj_t * p)
         s_val[i] = page_list_row(p, i * ROW_STEP, ROW_NAME[i], &s_row[i]);
     }
     /* Focus marker: short accent bar at the left of the chosen row */
-    s_mark = ui_box(p, 0, 0, 3, LIST_ROW_H - 24);
+    s_mark = ui_box(p, 0, 0, 3, LIST_ROW_H - 20);
     lv_obj_set_style_radius(s_mark, 2, 0);
     lv_obj_add_style(s_mark, ui_style_accent_bg(), 0);
     show();
