@@ -11,7 +11,7 @@
 
 /* ---------- Boat outline (content-area coords, bow up) ---------- */
 
-#define HULL_X  86
+#define HULL_X  92
 static const lv_point_precise_t HULL[] = {
     { 80, 0 }, { 120, 30 }, { 150, 110 }, { 160, 200 }, { 155, 300 },
     { 5, 300 }, { 0, 200 }, { 10, 110 }, { 40, 30 }, { 80, 0 },

@@ -7,7 +7,7 @@ _Last updated: 2026-09-25 · Keep compact. Update often._
 ## 1. Status
 Phase 1 in progress. Repo structure + LVGL v9.6.0 simulator done; builds natively (SDL2) and to WebAssembly.
 GitHub Actions (`web-sim.yml`) builds every push, deploys to Pages from `main` → https://arlene122.github.io/mini-jet-boat-dash/
-UI v2: ring speedo (ref image), bracket gauges (RPM left, fuel right), left stat list, glassy page card (Marine, Music, Lights, Trip, System, **Settings**). Stencil traced → `assets/stencil.png`.
+UI v2: ring speedo (ref image), mirrored bracket gauges (RPM left, fuel right; same reach above/below ring centre), left stat list right-aligned; page zone has **no box** (fading hairlines, mirrors engine side); pages: one hero value each, hairline lists (Marine compass, Music art tile, Lights, Trip, System, **Settings**). **UI not locked yet** — lock before reveal animation. Owner ref to adapt: dribbble 26477944 (EV cluster; blocked here — ask for screenshots). Stencil traced → `assets/stencil.png`.
 Data: fake ECU → CAN frames (**placeholder protocol**, `src/can/spark_can.*`, all UNVERIFIED) → sim bus → `dash_task` decode + ECU timeout (1 s → "NO ECU", engine values "--") + dash-side low fuel/batt + trip stats.
 Settings (units km/h/kn/mph + distance, °C/°F, 12/24 h, brightness, logging) saved via `settings_store_*` (sim: browser localStorage / file; P4: NVS later).
 Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S throttle, Space off, -/= fuel, F/N/R/B iBR, M mode, K DESS, P phone, E unplug ECU, 1–5 warnings, 0 clear, A demo · T stencil, H help.
@@ -63,6 +63,7 @@ Owner reviews UI v2 → tweak. Then: splash + reveal anim, day/night, ride summa
 ## 7. Change Log
 - 2026-09-25: Planning complete, docs created.
 - 2026-09-25: Rule 2 clarified: `Chat:` = planning mode, no code/file changes.
+- 2026-09-25: Page zone boxless + page redesign; brackets balanced.
 - 2026-09-25: UI v2 (ring speedo, brackets, restyled pages), Settings page + saving, CAN placeholder pipeline + ECU timeout.
 - 2026-09-25: UI v1 design: centre gauge + RPM inner arc, engine panel, 5-page card, warning banner, mode tint, sweep; stencil traced.
 - 2026-09-25: Phase 1 start — repo structure, LVGL sim (native + WASM), fake ECU, placeholder screen, Pages CI.

@@ -1,6 +1,6 @@
 /**
- * panel_engine — left zone: calm stat list (engine temp, battery,
- * fuel use) with hairline dividers. RPM and fuel live in the brackets.
+ * panel_engine — left zone, mirror of the page zone: fading hairline on
+ * its inner (right) edge, stats right-aligned toward the gauges.
  */
 #include "panel_engine.h"
 
@@ -13,7 +13,9 @@
 
 #define TEMP_HOT_C    95
 #define BATT_LOW_V10  118
-#define ROW_H         140
+#define PAD           30
+#define ROW_H         138
+#define TOP           40
 
 /* ---------- Widgets ---------- */
 
@@ -23,22 +25,20 @@ static lv_obj_t * s_temp, * s_temp_u, * s_batt, * s_rate;
 
 static lv_obj_t * stat(lv_obj_t * p, int32_t y, const char * cap, const char * unit, lv_obj_t ** unit_lbl)
 {
+    int32_t right = -PAD;
     lv_obj_t * c = ui_caption(p, cap);
     lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
-    lv_obj_set_pos(c, 0, y);
-    lv_obj_t * row = ui_box(p, 0, y + 22, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, right, y);
+
+    lv_obj_t * row = ui_box(p, 0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END);
+    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END);
     lv_obj_set_style_pad_column(row, 8, 0);
+    lv_obj_align(row, LV_ALIGN_TOP_RIGHT, right, y + 22);
     lv_obj_t * v = ui_label(row, &lv_font_montserrat_48, C_TEXT, "--");
     lv_obj_t * u = ui_label(row, &lv_font_montserrat_20, C_DIM, unit);
     lv_obj_set_style_pad_bottom(u, 9, 0);
     if(unit_lbl) *unit_lbl = u;
-    if(y > 0) {
-        lv_obj_t * line = ui_box(p, 0, y - 22, ENGINE_W - 60, 1);
-        lv_obj_set_style_bg_color(line, C_LINE, 0);
-        lv_obj_set_style_bg_opa(line, LV_OPA_COVER, 0);
-    }
     return v;
 }
 
@@ -46,10 +46,14 @@ static lv_obj_t * stat(lv_obj_t * p, int32_t y, const char * cap, const char * u
 
 void panel_engine_create(lv_obj_t * parent)
 {
-    lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1 + 20, ENGINE_W, SIDE_H - 20);
-    s_temp = stat(p, 0, "ENGINE TEMP", "", &s_temp_u);
-    s_batt = stat(p, ROW_H, "BATTERY", "V", NULL);
-    s_rate = stat(p, ROW_H * 2, "FUEL USE", "L/h", NULL);
+    lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1, ENGINE_W, SIDE_H);
+    ui_fade_line(p, ENGINE_W - 1, 0, SIDE_H, true, LV_OPA_60);
+    s_temp = stat(p, TOP, "ENGINE TEMP", "", &s_temp_u);
+    s_batt = stat(p, TOP + ROW_H, "BATTERY", "V", NULL);
+    s_rate = stat(p, TOP + ROW_H * 2, "FUEL USE", "L/h", NULL);
+    for(int i = 1; i < 3; i++) {
+        ui_fade_line(p, ENGINE_W - PAD - 200, TOP + ROW_H * i - 24, 200, false, LV_OPA_30);
+    }
 }
 
 void panel_engine_update(const dash_data_t * d)

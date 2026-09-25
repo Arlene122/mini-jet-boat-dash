@@ -51,6 +51,29 @@ lv_obj_t * ui_box(lv_obj_t * parent, int32_t x, int32_t y, int32_t w, int32_t h)
     return o;
 }
 
+lv_obj_t * ui_fade_line(lv_obj_t * parent, int32_t x, int32_t y, int32_t len, bool vertical, lv_opa_t peak)
+{
+    /* One shared descriptor per direction (styles keep a pointer to it) */
+    static lv_grad_dsc_t g[2];
+    lv_grad_dsc_t * gd = &g[vertical ? 1 : 0];
+    if(gd->stops_count == 0) {
+        gd->dir = vertical ? LV_GRAD_DIR_VER : LV_GRAD_DIR_HOR;
+        gd->stops_count = 3;
+        static const lv_opa_t opa[3] = { LV_OPA_TRANSP, LV_OPA_COVER, LV_OPA_TRANSP };
+        for(int i = 0; i < 3; i++) {
+            gd->stops[i].color = C_DIM;
+            gd->stops[i].opa = opa[i];
+            gd->stops[i].frac = (uint8_t)(i * 127);
+        }
+        gd->stops[2].frac = 255;
+    }
+    lv_obj_t * l = ui_box(parent, x, y, vertical ? 1 : len, vertical ? len : 1);
+    lv_obj_set_style_bg_opa(l, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_grad(l, gd, 0);
+    lv_obj_set_style_opa(l, peak, 0);
+    return l;
+}
+
 lv_obj_t * ui_slim_bar(lv_obj_t * parent, int32_t w, int32_t h, int32_t max)
 {
     lv_obj_t * b = lv_bar_create(parent);

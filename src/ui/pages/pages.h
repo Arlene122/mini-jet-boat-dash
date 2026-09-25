@@ -1,7 +1,7 @@
 /**
- * pages — the extra (non-engine) screens shown in the page card.
+ * pages — the extra (non-engine) screens shown in the page zone.
  * Each page builds itself once, then updates only changed values.
- * Content area is about 333 x 360 px.
+ * Style: one hero value per page, hairlines instead of boxes.
  */
 #ifndef PAGES_H
 #define PAGES_H
@@ -26,11 +26,17 @@ extern const ui_page_t page_trip;
 extern const ui_page_t page_system;
 extern const ui_page_t page_settings;
 
-#define PAGE_CONTENT_W 333   /* PAGE_W - 2 x padding */
-#define PAGE_COL2      176   /* x of the second column */
+#define PAGE_PAD        30    /* gap from the zone's hairline */
+#define PAGE_CONTENT_W  345
+#define PAGE_CONTENT_H  390
+#define LIST_ROW_H      46
 
-/* Shared: small caption + value, returns the value label */
-lv_obj_t * page_row(lv_obj_t * parent, int32_t x, int32_t y, const char * caption,
-                    const lv_font_t * font);
+/* Small caption above a value; returns the value label */
+lv_obj_t * page_stat(lv_obj_t * parent, int32_t x, int32_t y, const char * caption,
+                     const lv_font_t * font);
+
+/* List row: caption left, value right, fading hairline under it.
+ * Returns the value label; *row (optional) gets the row object. */
+lv_obj_t * page_list_row(lv_obj_t * parent, int32_t y, const char * caption, lv_obj_t ** row);
 
 #endif /* PAGES_H */

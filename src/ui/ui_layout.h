@@ -42,16 +42,16 @@
 #define BRK_OUT_X      600
 #define BRK_OUT_Y      282
 #define BRK_BOT_X      630
-#define BRK_BOT_Y      560
+#define BRK_BOT_Y      (2 * GAUGE_CY - BRK_TOP_Y)   /* same reach above/below */
 #define BRK_FOOT_X     740
 
 /* Side zones */
 #define SIDE_Y1        (FRAME_TOP_IN + 16)
 #define SIDE_Y2        (FRAME_BOT_IN - 16)
 #define SIDE_H         (SIDE_Y2 - SIDE_Y1)
-#define ENGINE_X       240
-#define ENGINE_W       320
-#define PAGE_X         1350
-#define PAGE_W         385
+#define ENGINE_X       (UI_HOR_RES - PAGE_X - PAGE_W)   /* mirror of the page zone */
+#define ENGINE_W       PAGE_W
+#define PAGE_X         1345
+#define PAGE_W         385          /* 30 pad + 345 content + 10 */
 
 #endif /* UI_LAYOUT_H */
