@@ -71,8 +71,8 @@ static void make_scale(lv_obj_t * parent)
     lv_obj_align(sc, LV_ALIGN_CENTER, 0, 0);
     lv_scale_set_mode(sc, LV_SCALE_MODE_ROUND_INNER);
     lv_scale_set_range(sc, 0, GAUGE_SPEED_MAX);
-    lv_scale_set_total_tick_count(sc, GAUGE_SPEED_MAX / 2 + 1);
-    lv_scale_set_major_tick_every(sc, 5);
+    lv_scale_set_total_tick_count(sc, GAUGE_SPEED_MAX / 5 + 1);   /* tick every 5 km/h */
+    lv_scale_set_major_tick_every(sc, 2);                         /* label every 10 */
     lv_scale_set_angle_range(sc, ARC_SWEEP);
     lv_scale_set_rotation(sc, ARC_ROT);
     lv_scale_set_label_show(sc, true);

@@ -28,12 +28,13 @@ typedef enum {
     DASH_IBR_BRAKE,
 } dash_ibr_t;
 
-/* Riding modes (UNVERIFIED list — confirm from stock gauge / CAN logs) */
+/* Riding modes. 2015 Spark 900 HO ACE: Touring (default) + Sport per
+ * operator's guide. ECO: UNVERIFIED for the 2015 Spark — confirm on the
+ * stock gauge / CAN logs. How the ECU reports the mode: UNVERIFIED. */
 typedef enum {
     DASH_MODE_TOURING = 0,
     DASH_MODE_SPORT,
     DASH_MODE_ECO,
-    DASH_MODE_SLOW,
     DASH_MODE_COUNT
 } dash_mode_t;
 

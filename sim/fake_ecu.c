@@ -22,7 +22,6 @@
 #define RPM_MAX          8000.0f
 #define RPM_ECO_MAX      6000.0f
 #define SPEED_MAX_KMH    80.0f
-#define SPEED_SLOW_KMH   8.0f
 #define SPEED_REV_KMH    8.0f
 #define TEMP_RUN_C       82.0f
 #define TEMP_OVERHEAT_C  100.0f
@@ -98,7 +97,6 @@ static void step_engine(float dt)
         case DASH_IBR_BRAKE:   rate = 2.0f; break;
         default:               rate = 0.3f; break;
     }
-    if(s_d.mode == DASH_MODE_SLOW) target = fminf(target, SPEED_SLOW_KMH);
     s_d.speed_kmh = approach(s_d.speed_kmh, target, rate, dt);
     if(s_d.speed_kmh < 0.05f) s_d.speed_kmh = 0.0f;
 

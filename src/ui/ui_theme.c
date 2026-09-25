@@ -1,6 +1,6 @@
 /**
  * ui_theme — mode accents: Touring ice-cyan, Sport warm orange,
- * Eco green, Slow soft violet.
+ * Eco green.
  */
 #include "ui_theme.h"
 
@@ -14,7 +14,6 @@ static const uint32_t MODE_ACCENT[DASH_MODE_COUNT] = {
     [DASH_MODE_TOURING] = 0x6FE3FF,
     [DASH_MODE_SPORT]   = 0xFF8A3D,
     [DASH_MODE_ECO]     = 0x5EE08A,
-    [DASH_MODE_SLOW]    = 0xB49CFF,
 };
 
 /* ---------- API ---------- */

@@ -93,7 +93,7 @@ static void update_bars(const dash_data_t * d)
     else ui_label_printf(s_clock, "%02d:%02d", d->clock_h, d->clock_m);
     ui_label_printf(s_hours, "%.1f h", (double)d->engine_hours);
 
-    static const char * modes[DASH_MODE_COUNT] = { "TOURING", "SPORT", "ECO", "SLOW" };
+    static const char * modes[DASH_MODE_COUNT] = { "TOURING", "SPORT", "ECO" };
     ui_label_printf(s_mode, "%s", modes[d->mode]);
 
     ui_label_printf(s_dess, "%s", d->dess_ok ? LV_SYMBOL_OK " DESS" : LV_SYMBOL_CLOSE " NO KEY");

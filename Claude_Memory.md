@@ -28,9 +28,11 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 - Stencil = sim-only top-layer overlay; `assets/stencil.png` if present else `stencil_placeholder.png` (transparent/white = visible).
 - Fake ECU writes dash_data directly for now; Phase 2 → emit CAN frames through the real decoder.
 - **UI design (agreed):** modern-minimal + subtle futuristic. Layout: top tilted bar (trip | clock | hours), left engine panel (RPM, fuel, engine temp, battery), centre gauge = big digital speed + slim 240° speed arc w/ ticks + **RPM arc inside**, knots, iBR R/N/F (BRAKE) in arc gap; right **page card** (Marine, Music, Lights, System, Trip; knob changes page); bottom tilted bar (mode | warnings | DESS·source). Bars follow stencil slants.
-- Accent = **ice-cyan**, tints by mode (Touring cyan, Sport orange, Eco green, Slow violet); amber/red only for alerts. Near-black bg.
+- Accent = **ice-cyan**, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts. Near-black bg.
 - New warning → banner over page card (plain words + action), knob push acks; bottom-bar icon stays lit.
 - Key-on sweep of arcs covers boot. UI→boat actions via `dash_cmd.h`; controls via `ui_input.h`; zones in `ui_layout.h`.
+- Spark 2015 900 HO: modes Touring (default) + Sport (manual); ECO UNVERIFIED. Top ~48–50 mph ≈ 80 km/h → speed scale 0–105 km/h.
+- Design refs (owner, later): glowing segmented blue arcs, bottom icon dock, perspective grid floor, clean thin digits; refs too dark → keep ours a bit brighter. Wants a "reveal" load-in animation when dash appears (after splash); splash could be jet-boat motion video (owner/AI-made). Speedo stays centre unless steering blocks view.
 - Old HTML dash (uploaded) = layout reference only; never reuse its code/styling. Kept ideas: toolbar/status strip, 4 swipe pages, 5 lights on boat top view, music unconnected state.
 
 ## 3. Hardware Status
@@ -49,7 +51,7 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 - Claude sandbox blocks Emscripten's SDL2 zip download → local test: `EMCC_LOCAL_PORTS=sdl2=<git clone of SDL release-2.30.9>`. CI unaffected.
 
 ## 5. Open Items
-Stencil is eye-traced from image (exact SVG would be better) · Spark mode names · 5 light names · speed scale max (100?) · day/night theme · ride summary on key-off · warning tone · 4 button functions · knob display · wake signal · fuel sender wiring · dash opening size · P4 board model.
+Stencil is eye-traced from image (exact SVG would be better) · 5 light names (all-round white, LED strips, basic lights — owner to confirm) · end of owner msg "eventually add om…" cut off · day/night theme · ride summary on key-off · warning tone · 4 button functions · knob display · wake signal · fuel sender wiring · dash opening size · P4 board model.
 
 ## 6. Next Step
 Owner reviews v1 design in sim → tweak. Then: splash, day/night, settings page, ride summary; Phase 2 CAN-frame fake ECU.
