@@ -1,6 +1,6 @@
 /**
  * sim_overlay — stencil image on the top layer + help panel.
- *   S: stencil opacity 100% -> 50% -> off
+ *   T: stencil opacity 100% -> 50% -> off
  *   H: show / hide key help
  */
 #include "sim_overlay.h"
@@ -17,19 +17,21 @@ static lv_obj_t * s_help;
 static int s_stencil_step;       /* 0 = 100%, 1 = 50%, 2 = off */
 
 static const char * HELP_KEYS =
-    "Up / Down\nSpace\nLeft / Right\nF N R B\nM\nK\n1 2 3 4 5\n0\nA\nS\nH";
+    "Left / Right\nEnter\nUp / Down\nEsc\n\nW / S\nSpace\n- / =\nF N R B\nM   K   P\n1 2 3 4 5\n0   A\nT   H";
 static const char * HELP_TEXT =
+    "knob: previous / next page\n"
+    "knob push: select / acknowledge\n"
+    "5-way: move in page\n"
+    "home page\n"
+    "\n"
     "throttle +/-\n"
     "throttle off\n"
     "fuel -/+ 5%\n"
     "iBR fwd / neutral / rev / brake\n"
-    "riding mode\n"
-    "DESS key on/off\n"
-    "check eng / oil / overheat / low fuel / low batt\n"
-    "clear warnings\n"
-    "auto demo\n"
-    "stencil 100% / 50% / off\n"
-    "hide this help";
+    "mode / DESS key / phone\n"
+    "eng / oil / heat / fuel / batt warning\n"
+    "clear warnings / auto demo\n"
+    "stencil / this help";
 
 /* ---------- Helpers ---------- */
 
@@ -54,7 +56,7 @@ void sim_overlay_init(void)
     /* Help panel: title + two columns (keys | action) */
     s_help = lv_obj_create(top);
     lv_obj_remove_style_all(s_help);
-    lv_obj_set_size(s_help, 900, LV_SIZE_CONTENT);
+    lv_obj_set_size(s_help, 960, LV_SIZE_CONTENT);
     lv_obj_set_style_bg_color(s_help, lv_color_hex(0x000000), 0);
     lv_obj_set_style_bg_opa(s_help, LV_OPA_80, 0);
     lv_obj_set_style_pad_all(s_help, 24, 0);
@@ -64,7 +66,7 @@ void sim_overlay_init(void)
     lv_obj_set_flex_flow(s_help, LV_FLEX_FLOW_ROW_WRAP);
 
     lv_obj_t * title = lv_label_create(s_help);
-    lv_label_set_text(title, "FAKE SPARK ECU - KEYS");
+    lv_label_set_text(title, "SIMULATOR KEYS");
     lv_obj_set_style_text_color(title, lv_color_hex(0x2F80ED), 0);
     lv_obj_set_width(title, LV_PCT(100));
 
@@ -81,7 +83,7 @@ void sim_overlay_init(void)
 bool sim_overlay_key(int key)
 {
     switch(key) {
-        case SDLK_s:
+        case SDLK_t:
             s_stencil_step = (s_stencil_step + 1) % 3;
             apply_stencil();
             return true;

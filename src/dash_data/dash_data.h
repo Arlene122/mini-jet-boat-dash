@@ -1,9 +1,10 @@
 /**
  * dash_data — the ONLY place the UI gets values from.
  *
- * A data source (fake ECU simulator, CAN replay, or real CAN + GPS) writes
- * values with dash_data_set(). The UI reads a snapshot with dash_data_get()
- * and redraws only what changed. Same code on PC and on the ESP32-P4.
+ * A data source (fake ECU simulator, CAN replay, or real CAN + GPS + audio
+ * board) writes values with dash_data_set(). The UI reads a snapshot with
+ * dash_data_get() and redraws only what changed. Same code on PC and P4.
+ * UI -> boat actions go the other way through dash_cmd.h.
  */
 #ifndef DASH_DATA_H
 #define DASH_DATA_H
@@ -36,14 +37,47 @@ typedef enum {
     DASH_MODE_COUNT
 } dash_mode_t;
 
-/* Warning bit flags */
+/* Warning bit flags (order = priority, highest first) */
 enum {
-    DASH_WARN_CHECK_ENGINE = 1u << 0,
-    DASH_WARN_OIL_PRESSURE = 1u << 1,
-    DASH_WARN_OVERHEAT     = 1u << 2,
+    DASH_WARN_OIL_PRESSURE = 1u << 0,
+    DASH_WARN_OVERHEAT     = 1u << 1,
+    DASH_WARN_CHECK_ENGINE = 1u << 2,
     DASH_WARN_LOW_FUEL     = 1u << 3,
     DASH_WARN_LOW_BATTERY  = 1u << 4,
+    DASH_WARN_COUNT        = 5
 };
+
+#define DASH_LIGHT_COUNT 5
+#define DASH_TEXT_LEN    48
+
+/* ---------- Grouped data ---------- */
+
+typedef struct {
+    bool     connected;
+    bool     playing;
+    char     phone[DASH_TEXT_LEN];
+    char     title[DASH_TEXT_LEN];
+    char     artist[DASH_TEXT_LEN];
+    uint16_t pos_s;          /* playback position */
+    uint16_t len_s;          /* track length */
+} dash_music_t;
+
+typedef struct {
+    bool  gps_fix;
+    float lat, lon;
+    float heading_deg;
+    bool  water_temp_ok;
+    float water_temp_c;
+    bool  tide_ok;
+    float tide_m, tide_min_m, tide_max_m;
+} dash_marine_t;
+
+typedef struct {
+    float    top_speed_kmh;
+    uint16_t max_rpm;
+    uint32_t ride_time_s;
+    float    fuel_used_l;
+} dash_trip_t;
 
 /* ---------- Data snapshot ---------- */
 
@@ -51,6 +85,7 @@ typedef struct {
     float    speed_kmh;      /* GPS speed */
     uint16_t rpm;
     float    fuel_pct;       /* 0..100 */
+    float    fuel_rate_lph;
     float    engine_temp_c;
     float    battery_v;
     float    engine_hours;
@@ -62,6 +97,10 @@ typedef struct {
     uint32_t warnings;       /* DASH_WARN_* flags */
     uint16_t error_code;     /* 0 = none */
     bool     dess_ok;        /* DESS key recognised */
+    uint8_t  lights;         /* bit n = light n+1 on (relay state) */
+    dash_music_t  music;
+    dash_marine_t marine;
+    dash_trip_t   trip;
     dash_source_t source;
 } dash_data_t;
 
