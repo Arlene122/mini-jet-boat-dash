@@ -12,7 +12,8 @@
 void page_host_create(lv_obj_t * parent);
 void page_host_update(const dash_data_t * d);
 void page_host_step(int dir);       /* +1 next, -1 previous */
-void page_host_home(void);
+void page_host_back(void);           /* close settings, else first page */
+void page_host_toggle_settings(void); /* knob hold / Settings button */
 bool page_host_input(ui_input_t in);
 
 #endif /* PAGE_HOST_H */

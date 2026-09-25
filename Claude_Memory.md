@@ -1,71 +1,53 @@
 # Claude Memory — Mini Jet Boat Dash
-_Last updated: 2026-09-25 · Keep compact. Update often._
+_Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 
 ## Index
-1. Status · 2. Key Decisions · 3. Hardware · 4. Lessons / Avoid · 5. Open Items · 6. Next Step · 7. Change Log
+1 Status · 2 Decisions · 3 UI · 4 Architecture · 5 Hardware · 6 Lessons · 7 Open · 8 Next · 9 Log
 
 ## 1. Status
-Phase 1 in progress. Repo structure + LVGL v9.6.0 simulator done; builds natively (SDL2) and to WebAssembly.
-GitHub Actions (`web-sim.yml`) builds every push, deploys to Pages from `main` → https://arlene122.github.io/mini-jet-boat-dash/
-UI v2: ring speedo (ref image), mirrored bracket gauges (RPM left, fuel right; same reach above/below ring centre), left stat list right-aligned; page zone has **no box** (fading hairlines, mirrors engine side); pages: one hero value each, hairline lists (Marine compass, Music art tile, Lights, Trip, System, **Settings**). **UI not locked yet** — lock before reveal animation. Owner ref to adapt: dribbble 26477944 (EV cluster; blocked here — ask for screenshots). Stencil traced → `assets/stencil.png`.
-Data: fake ECU → CAN frames (**placeholder protocol**, `src/can/spark_can.*`, all UNVERIFIED) → sim bus → `dash_task` decode + ECU timeout (1 s → "NO ECU", engine values "--") + dash-side low fuel/batt + trip stats.
-Settings (units km/h/kn/mph + distance, °C/°F, 12/24 h, brightness, logging) saved via `settings_store_*` (sim: browser localStorage / file; P4: NVS later).
-Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S throttle, Space off, -/= fuel, F/N/R/B iBR, M mode, K DESS, P phone, E unplug ECU, 1–5 warnings, 0 clear, A demo · T stencil, H help.
+- Phase 1–2 (sim) well advanced. Live sim: https://arlene122.github.io/mini-jet-boat-dash/ (deploys from `main`).
+- Work branch `claude/compassionate-mendel-bp8lbr`; PR #4 open — **owner said don't merge yet**.
+- UI **not locked**; lock before reveal animation.
 
-## 2. Key Decisions
-- Mini jet boat w/ 2015 Spark engine+ECU; dash **replaces stock gauge**; iBR/modes/DESS must work.
-- ESP32-P4 + LVGL v9 (C, ESP-IDF). Audio on separate classic ESP32.
-- Screen v1: owned Wisecoco 12.3" 1920×720 HDMI 500 nit via LT8912B bridge. Upgrade later to 850–1000 nit.
-- Boot ≤3 s (splash covers). Off instantly (hold-up cap).
-- Speed from GPS; engine data from CAN. Units switchable.
-- Controls: SF39BA 5-way + SLD encoder + 4 buttons (functions TBD). No touch.
-- Weather/tide via phone hotspot. Updates USB + OTA.
-- Warnings: icons + soft tone via speakers (duck music, forced min vol).
-- Logging toggle, phone-app-ready format. Settings persisted.
-- Keep old HTML's tilted top/bottom bars; restyle modern/minimal.
-- Simulator runs in browser (LVGL C → WebAssembly, GitHub Pages) = dev tool only; dash UI stays C/LVGL (not an HTML UI). No installs for user.
-- Pinned: LVGL v9.6.0 (CMake FetchContent), Emscripten 3.1.74. `sim/lv_conf.h` from v9.6.0 template.
-- Structure: `src/dash_data` (only UI input) · `src/ui` (screens/widgets, shared w/ P4) · `sim/` (SDL main, fake_ecu, stencil/help overlay) · `tools/stencil_to_c.py`.
-- Big digits = generated Montserrat SemiBold fonts (200/96 px, digits only) via lv_font_conv.
-- Stencil = sim-only top-layer overlay; `assets/stencil.png` if present else `stencil_placeholder.png` (transparent/white = visible).
-- Fake ECU writes dash_data directly for now; Phase 2 → emit CAN frames through the real decoder.
-- **UI design (agreed):** modern-minimal + subtle futuristic. Layout: top tilted bar (trip | clock | hours), left engine panel (RPM, fuel, engine temp, battery), centre gauge = big digital speed + slim 240° speed arc w/ ticks + **RPM arc inside**, knots, iBR R/N/F (BRAKE) in arc gap; right **page card** (Marine, Music, Lights, System, Trip; knob changes page); bottom tilted bar (mode | warnings | DESS·source). Bars follow stencil slants.
-- Accent = **ice-cyan**, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts. Near-black bg.
-- Frame: glowing accent lines across top & bottom that dip ("pinch") in the middle; top/bottom bars sit in the notch, tilted toward centre, horizontal gradient (dark ends, accent-tinted middle) — from owner's old HTML look.
-- New warning → banner over page card (plain words + action), knob push acks; bottom-bar icon stays lit.
-- Platform hooks the P4 must implement: `can_bus_receive` (TWAI), `settings_store_load/save` (NVS), `dash_cmd_*` (relays, audio, brightness). No CAN TX API on purpose (safety).
-- Key-on sweep of arcs covers boot. UI→boat actions via `dash_cmd.h`; controls via `ui_input.h`; zones in `ui_layout.h`.
-- Spark 2015 900 HO: modes Touring (default) + Sport (manual); ECO UNVERIFIED. Top ~48–50 mph ≈ 80 km/h → speed scale 0–105 km/h.
-- Design refs (owner, later): glowing segmented blue arcs, bottom icon dock, perspective grid floor, clean thin digits; refs too dark → keep ours a bit brighter. Wants a "reveal" load-in animation when dash appears (after splash); splash could be jet-boat motion video (owner/AI-made). Speedo stays centre unless steering blocks view.
-- Old HTML dash (uploaded) = layout reference only; never reuse its code/styling. Kept ideas: toolbar/status strip, 4 swipe pages, 5 lights on boat top view, music unconnected state.
+## 2. Decisions
+- Spark 2015 900 HO: modes Touring (default) + Sport; ECO UNVERIFIED. Top ~80 km/h → scale 0–105.
+- ESP32-P4 + LVGL v9.6 (C). Audio on separate ESP32 (BT). Sim = browser WASM (dev tool only; dash UI is C/LVGL).
+- Speed from GPS; engine via CAN. Units km/h/kn/mph (distance follows), °C/°F, 12/24 h.
+- Phone: auto-reconnect to last phone; pairing from Music page (not Settings).
+- Settings = set-and-forget, **not a swipe page**: opens in page zone via knob long-press **and** a dedicated button.
+- Requirements.md changes only when owner says (Rule 6).
 
-## 3. Hardware Status
-| Item | Status |
-|---|---|
-| Wisecoco screen | Owned |
-| ESP32-P4 + LT8912B | To buy (model TBD) |
-| Stock Spark gauge | Disassembled — **keep, needed for CAN sniffing** |
-| Engine/ECU | In boat build, not runnable yet |
+## 3. UI (current)
+- Frame: glowing accent lines top/bottom with centre "pinch"; tilted gradient bars in the notch (top: trip|clock|hours; bottom: mode|warnings|DESS·source).
+- Centre: glowing 270° speed ring + digital speed, alt unit, iBR pill. Mirrored bracket gauges: RPM left (red ≥7000), FUEL right (amber ≤15%).
+- Left zone (keep clean): status icons (log, Wi-Fi, GPS, BT) + engine temp, battery, fuel use; fading hairline edge.
+- Right page zone (no box, fading hairline): swipe pages **NAV, MUSIC, LIGHTS, RIDE**.
+  - NAV: push toggles **Map** (map fills panel; offline tiles later) ↔ **Marine** (compass, depth, water temp, tide chart w/ next low/high times, coords).
+  - RIDE: distance hero, top speed/ride time/max RPM, fuel used, hours, error code.
+- Accent ice-cyan, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts.
+- New warning → banner over page zone (plain words + action), knob push acks; bottom icon stays lit.
+- NO ECU (no frames 1 s): engine values "--", amber NO ECU.
+- Key-on arc sweep. Refs: old HTML = layout only; owner ref dribbble 26477944 (blocked — need screenshots).
 
-## 4. Lessons / Avoid
-- HTML dash = too laggy. Don't revisit.
-- Pi/Linux boot too slow.
-- BRP CAN undocumented — never assume IDs.
-- LVGL v9.6: `lv_obj_add/remove_flag` deprecated → use `lv_obj_set_hidden/scrollable/clickable`. Public headers moved to `include/`.
-- Claude sandbox blocks Emscripten's SDL2 zip download → local test: `EMCC_LOCAL_PORTS=sdl2=<git clone of SDL release-2.30.9>`. CI unaffected.
+## 4. Architecture
+- `src/dash_data` (UI's only input; `dash_task` = CAN decode, ECU timeout, derived warnings, trip) · `src/can` (**placeholder protocol, UNVERIFIED**) · `src/settings` (versioned blob) · `src/ui` (+`pages/`, zones in `ui_layout.h`) · `sim/`.
+- P4 must implement: `can_bus_receive` (TWAI), `settings_store_load/save` (NVS), `dash_cmd_*` (relays, audio/BT, brightness). **No CAN TX API** (safety).
+- Controls abstracted in `ui_input.h` (NEXT/PREV/SELECT/BACK/SETTINGS/UP/DOWN).
 
-## 5. Open Items
-**Proposed, awaiting owner OK:** left zone = status/context zone (connection icons, engine stats, lights on, next-turn card when navigating) · pages cut to 4 (Nav/Marine, Music, Lights, Ride=trip+engine) · Settings off the carousel (knob long-press/button) with sections incl. **Connections** (Bluetooth phone pairing via audio board, Wi-Fi hotspot) · map: mini map on Nav page + optional full map mode via a button; offline map tiles on SD (future).
-Stencil is eye-traced from image (exact SVG would be better) · 5 light names (all-round white, LED strips, basic lights — owner to confirm) · end of owner msg "eventually add om…" cut off · day/night theme · ride summary on key-off · warning tone · 4 button functions · knob display · wake signal · fuel sender wiring · dash opening size · P4 board model.
+## 5. Hardware
+Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN (to buy) · stock gauge kept for sniffing · engine not runnable yet.
 
-## 6. Next Step
-Owner reviews UI v2 → tweak. Then: splash + reveal anim, day/night, ride summary, logging file format, CAN replay (candump). Hardware when bought: P4 board + USB-CAN.
+## 6. Lessons
+- HTML dash too laggy; Pi boot too slow; never assume BRP CAN IDs.
+- LVGL 9.6: use `lv_obj_set_hidden/…` (flag APIs deprecated); read sizes via constants, not `lv_obj_get_width` at create time.
+- Dark low-contrast gradients band → use solid fills; glow = opaque pre-mixed passes (no alpha overlap beads).
+- Sandbox blocks Emscripten SDL2 zip → `EMCC_LOCAL_PORTS=sdl2=<SDL git clone>`; blocks dribbble/manualslib.
 
-## 7. Change Log
-- 2026-09-25: Planning complete, docs created.
-- 2026-09-25: Rule 2 clarified: `Chat:` = planning mode, no code/file changes.
-- 2026-09-25: Rule 6: Requirements.md only on owner's say-so.
-- 2026-09-25: Page zone boxless + page redesign; brackets balanced.
-- 2026-09-25: UI v2 (ring speedo, brackets, restyled pages), Settings page + saving, CAN placeholder pipeline + ECU timeout.
-- 2026-09-25: UI v1 design: centre gauge + RPM inner arc, engine panel, 5-page card, warning banner, mode tint, sweep; stencil traced.
-- 2026-09-25: Phase 1 start — repo structure, LVGL sim (native + WASM), fake ECU, placeholder screen, Pages CI.
+## 7. Open
+5 light names · 4 button jobs (1 = Settings, 1 = map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows untested.
+
+## 8. Next
+Owner review → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
+
+## 9. Log
+- 09-25 Planning; sim + CI; UI v1→v2 (ring, brackets, boxless pages); settings + saving; CAN pipeline; Nav map/marine, Music BT, Settings overlay, 4 pages.

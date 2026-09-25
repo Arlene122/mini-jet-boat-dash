@@ -14,12 +14,13 @@
 #define TEMP_HOT_C    95
 #define BATT_LOW_V10  118
 #define PAD           30
-#define ROW_H         138
-#define TOP           40
+#define ROW_H         132
+#define TOP           60
 
 /* ---------- Widgets ---------- */
 
 static lv_obj_t * s_temp, * s_temp_u, * s_batt, * s_rate;
+static lv_obj_t * s_ic_bt, * s_ic_gps, * s_ic_wifi, * s_ic_log;
 
 /* ---------- Helpers ---------- */
 
@@ -48,6 +49,16 @@ void panel_engine_create(lv_obj_t * parent)
 {
     lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1, ENGINE_W, SIDE_H);
     ui_fade_line(p, ENGINE_W - 1, 0, SIDE_H, true, LV_OPA_60);
+
+    /* Quiet status icons: phone, GPS, hotspot, logging (lit when active) */
+    lv_obj_t * icons = ui_box(p, 0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(icons, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_column(icons, 18, 0);
+    lv_obj_align(icons, LV_ALIGN_TOP_RIGHT, -PAD, 10);
+    s_ic_log = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_SD_CARD);
+    s_ic_wifi = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_WIFI);
+    s_ic_gps = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_GPS);
+    s_ic_bt = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_BLUETOOTH);
     s_temp = stat(p, TOP, "ENGINE TEMP", "", &s_temp_u);
     s_batt = stat(p, TOP + ROW_H, "BATTERY", "V", NULL);
     s_rate = stat(p, TOP + ROW_H * 2, "FUEL USE", "L/h", NULL);
@@ -72,4 +83,10 @@ void panel_engine_update(const dash_data_t * d)
         ui_label_printf(s_rate, "%.1f", (double)d->fuel_rate_lph);
     }
     ui_label_printf(s_temp_u, "%s", settings_temp_unit());
+
+    ui_set_text_color(s_ic_bt, d->music.bt == DASH_BT_CONNECTED ? C_DIM :
+                               d->music.bt == DASH_BT_OFF ? C_OFF : C_AMBER);
+    ui_set_text_color(s_ic_gps, d->marine.gps_fix ? C_DIM : C_AMBER);
+    ui_set_text_color(s_ic_wifi, d->wifi_ok ? C_DIM : C_OFF);
+    ui_set_text_color(s_ic_log, settings_get()->logging ? C_DIM : C_OFF);
 }

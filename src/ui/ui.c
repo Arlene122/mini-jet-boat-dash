@@ -85,7 +85,8 @@ void ui_input(ui_input_t in)
     switch(in) {
         case UI_IN_NEXT: page_host_step(1); break;
         case UI_IN_PREV: page_host_step(-1); break;
-        case UI_IN_HOME: page_host_home(); break;
+        case UI_IN_BACK: page_host_back(); break;
+        case UI_IN_SETTINGS: page_host_toggle_settings(); break;
         default: page_host_input(in); break;
     }
 }

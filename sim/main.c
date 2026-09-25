@@ -19,19 +19,31 @@
 
 /* ---------- Keyboard ---------- */
 
-/* Sees every SDL event before LVGL's driver consumes it. */
+#define LONG_PRESS_MS 600
+
+static uint32_t s_enter_down_ms;   /* 0 = not held */
+
+/* Sees every SDL event before LVGL's driver consumes it.
+ * Enter = knob push: short press = select, hold = settings. */
 static int key_watch(void * user, SDL_Event * e)
 {
     LV_UNUSED(user);
-    if(e->type != SDL_KEYDOWN) return 0;
+    if(e->type == SDL_KEYUP && e->key.keysym.sym == SDLK_RETURN && s_enter_down_ms) {
+        bool longp = SDL_GetTicks() - s_enter_down_ms >= LONG_PRESS_MS;
+        s_enter_down_ms = 0;
+        ui_input(longp ? UI_IN_SETTINGS : UI_IN_SELECT);
+        return 0;
+    }
+    if(e->type != SDL_KEYDOWN || e->key.repeat) return 0;
     int key = e->key.keysym.sym;
     if(fake_ecu_key(key) || sim_overlay_key(key)) return 0;
-    switch(key) {   /* dash controls: knob + 5-way */
+    switch(key) {   /* dash controls: knob + 5-way + Settings button */
         case SDLK_RIGHT:     ui_input(UI_IN_NEXT); break;
         case SDLK_LEFT:      ui_input(UI_IN_PREV); break;
-        case SDLK_RETURN:    ui_input(UI_IN_SELECT); break;
+        case SDLK_RETURN:    s_enter_down_ms = SDL_GetTicks(); break;
         case SDLK_BACKSPACE:
-        case SDLK_ESCAPE:    ui_input(UI_IN_HOME); break;
+        case SDLK_ESCAPE:    ui_input(UI_IN_BACK); break;
+        case SDLK_o:         ui_input(UI_IN_SETTINGS); break;
         case SDLK_UP:        ui_input(UI_IN_UP); break;
         case SDLK_DOWN:      ui_input(UI_IN_DOWN); break;
         default: break;

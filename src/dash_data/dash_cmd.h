@@ -22,6 +22,9 @@ void dash_cmd_light_toggle(uint8_t index);
 
 void dash_cmd_music(dash_music_cmd_t cmd);
 
+/* Put the audio board in pairing mode for a new phone */
+void dash_cmd_bt_pair(void);
+
 /* Screen brightness 10..100 % (P4: backlight / panel control) */
 void dash_cmd_brightness(uint8_t pct);
 

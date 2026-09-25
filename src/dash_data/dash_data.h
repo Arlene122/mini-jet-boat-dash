@@ -56,8 +56,17 @@ enum {
 
 /* ---------- Grouped data ---------- */
 
+/* Phone link (audio board). Auto-reconnects to the last phone on power-up. */
+typedef enum {
+    DASH_BT_OFF = 0,        /* no phone, not looking */
+    DASH_BT_SEARCHING,      /* trying the last paired phone */
+    DASH_BT_PAIRING,        /* visible, waiting for a new phone */
+    DASH_BT_CONNECTED,
+} dash_bt_t;
+
 typedef struct {
-    bool     connected;
+    dash_bt_t bt;
+    bool     connected;     /* == (bt == DASH_BT_CONNECTED) */
     bool     playing;
     char     phone[DASH_TEXT_LEN];
     char     title[DASH_TEXT_LEN];
@@ -72,8 +81,12 @@ typedef struct {
     float heading_deg;
     bool  water_temp_ok;
     float water_temp_c;
-    bool  tide_ok;
+    bool  depth_ok;         /* depth sounder fitted + reading (future sensor) */
+    float depth_m;
+    bool  tide_ok;          /* tide data from phone hotspot */
     float tide_m, tide_min_m, tide_max_m;
+    float tide_phase;       /* 0 = low water, 0.5 = high water, wraps at 1 */
+    uint16_t tide_period_min;   /* low-to-low, ~745 min */
 } dash_marine_t;
 
 typedef struct {
@@ -102,6 +115,7 @@ typedef struct {
     uint16_t error_code;     /* 0 = none */
     bool     dess_ok;        /* DESS key recognised */
     bool     ecu_ok;         /* engine CAN data is fresh */
+    bool     wifi_ok;        /* phone hotspot joined (weather, tide, OTA) */
     uint8_t  lights;         /* bit n = light n+1 on (relay state) */
     dash_music_t  music;
     dash_marine_t marine;

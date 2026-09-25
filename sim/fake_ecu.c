@@ -54,6 +54,8 @@ static float s_throttle;        /* 0..1 */
 static bool s_force_overheat, s_force_low_batt;
 static bool s_demo;
 static float s_demo_t, s_music_t;
+static float s_bt_t;             /* time in current phone-link state */
+static bool s_phone_in_range = true;
 static uint32_t s_ms;
 static int s_track;
 
@@ -162,7 +164,13 @@ static void step_other_boards(float dt)
     m->lat += cosf(rad) * km / 111.0f;
     m->lon += sinf(rad) * km / 92.0f;
 
-    /* Fake audio board */
+    /* Fake audio board: auto-reconnect to the last phone, pairing */
+    dash_music_t * mu = &d->music;
+    s_bt_t += dt;
+    if(mu->bt == DASH_BT_SEARCHING && s_phone_in_range && s_bt_t > 2.5f) mu->bt = DASH_BT_CONNECTED;
+    if(mu->bt == DASH_BT_PAIRING && s_bt_t > 4.0f) mu->bt = DASH_BT_CONNECTED;
+    if(mu->bt == DASH_BT_CONNECTED && !s_phone_in_range) { mu->bt = DASH_BT_SEARCHING; s_bt_t = 0; }
+    mu->connected = mu->bt == DASH_BT_CONNECTED;
     if(d->music.connected && d->music.playing) {
         s_music_t += dt;
         if(s_music_t >= d->music.len_s) load_track(s_track + 1);
@@ -173,6 +181,15 @@ static void step_other_boards(float dt)
     struct tm * tm = localtime(&now);
     d->clock_h = (int8_t)tm->tm_hour;
     d->clock_m = (int8_t)tm->tm_min;
+
+    /* Fake tide (phone hotspot): sine over the period, from wall clock */
+    float mins = (float)(tm->tm_hour * 60 + tm->tm_min) + tm->tm_sec / 60.0f;
+    m->tide_phase = fmodf(mins / m->tide_period_min + 0.15f, 1.0f);
+    float mid = (m->tide_min_m + m->tide_max_m) / 2, amp = (m->tide_max_m - m->tide_min_m) / 2;
+    m->tide_m = mid - amp * cosf(2.0f * 3.14159f * m->tide_phase);
+
+    /* Fake depth sounder: wanders a little with position */
+    m->depth_m = 3.2f + 1.4f * sinf(m->lat * 900.0f) + 0.6f * cosf(m->lon * 700.0f);
 }
 
 static void tick_cb(lv_timer_t * t)
@@ -190,6 +207,15 @@ static void tick_cb(lv_timer_t * t)
 void dash_cmd_light_toggle(uint8_t index)
 {
     if(index < DASH_LIGHT_COUNT) dash_data_edit()->lights ^= (uint8_t)(1u << index);
+}
+
+void dash_cmd_bt_pair(void)
+{
+    dash_music_t * m = &dash_data_edit()->music;
+    m->bt = DASH_BT_PAIRING;
+    m->connected = false;
+    s_phone_in_range = true;
+    s_bt_t = 0;
 }
 
 void dash_cmd_music(dash_music_cmd_t cmd)
@@ -220,7 +246,7 @@ bool fake_ecu_key(int key)
         case SDLK_m:      s_ecu.mode = (s_ecu.mode + 1) % DASH_MODE_COUNT; break;
         case SDLK_k:      s_ecu.dess = !s_ecu.dess; break;
         case SDLK_e:      sim_can_set_connected(!sim_can_connected()); break;
-        case SDLK_p:      dash_data_edit()->music.connected = !dash_data_get()->music.connected; break;
+        case SDLK_p:      s_phone_in_range = !s_phone_in_range; s_bt_t = 0; break;
         case SDLK_1:      s_ecu.faults ^= DASH_WARN_CHECK_ENGINE; break;
         case SDLK_2:      s_ecu.faults ^= DASH_WARN_OIL_PRESSURE; break;
         case SDLK_3:      s_force_overheat = !s_force_overheat; break;
@@ -250,10 +276,13 @@ void fake_ecu_init(void)
     d->marine = (dash_marine_t){
         .gps_fix = true, .lat = -33.8568f, .lon = 151.2153f, .heading_deg = 45.0f,
         .water_temp_ok = true, .water_temp_c = 21.5f,
+        .depth_ok = true, .depth_m = 3.2f,
         .tide_ok = true, .tide_m = 0.9f, .tide_min_m = 0.3f, .tide_max_m = 1.8f,
+        .tide_period_min = 745,
     };
-    d->music.connected = true;
+    d->music.bt = DASH_BT_SEARCHING;      /* power-up: look for last phone */
     d->music.playing = true;
+    d->wifi_ok = true;
     snprintf(d->music.phone, DASH_TEXT_LEN, "IPHONE");
     load_track(0);
 

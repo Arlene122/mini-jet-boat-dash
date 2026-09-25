@@ -3,6 +3,8 @@
  * set off by a fading vertical hairline (mirrors the engine side) and a
  * fading header rule. All pages are built once and hidden; only the
  * visible one is updated. A short fade on change.
+ * Settings is not in the swipe order: it opens in the same zone
+ * (knob hold / Settings button) and closes with Back or the same control.
  */
 #include "page_host.h"
 
@@ -14,7 +16,7 @@
 /* ---------- Config ---------- */
 
 static const ui_page_t * const PAGES[] = {
-    &page_marine, &page_music, &page_lights, &page_trip, &page_system, &page_settings,
+    &page_nav, &page_music, &page_lights, &page_ride,
 };
 #define PAGE_COUNT ((int)(sizeof(PAGES) / sizeof(PAGES[0])))
 #define PAD_L      PAGE_PAD
@@ -22,7 +24,8 @@ static const ui_page_t * const PAGES[] = {
 
 /* ---------- State ---------- */
 
-static lv_obj_t * s_zone, * s_title;
+static lv_obj_t * s_zone, * s_title, * s_dots, * s_settings;
+static bool s_in_settings;
 static lv_obj_t * s_content[PAGE_COUNT];
 static lv_obj_t * s_dot[PAGE_COUNT];
 static int s_cur;
@@ -32,6 +35,11 @@ static const dash_data_t * s_last;
 
 static void show_page(int idx)
 {
+    if(s_in_settings) {                  /* leaving settings */
+        s_in_settings = false;
+        lv_obj_set_hidden(s_settings, true);
+        lv_obj_set_hidden(s_dots, false);
+    }
     lv_obj_set_hidden(s_content[s_cur], true);
     lv_obj_set_style_bg_color(s_dot[s_cur], C_OFF, 0);
     lv_obj_set_width(s_dot[s_cur], 6);
@@ -60,6 +68,7 @@ void page_host_create(lv_obj_t * parent)
     lv_obj_set_flex_flow(dots, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_column(dots, 6, 0);
     lv_obj_align(dots, LV_ALIGN_TOP_RIGHT, 0, 22);
+    s_dots = dots;
 
     ui_fade_line(s_zone, PAD_L, HEAD_H - 14, PAGE_CONTENT_W, false, LV_OPA_50);
 
@@ -73,27 +82,55 @@ void page_host_create(lv_obj_t * parent)
         PAGES[i]->create(s_content[i]);
         lv_obj_set_hidden(s_content[i], true);
     }
+    s_settings = ui_box(s_zone, PAD_L, HEAD_H + 8, PAGE_CONTENT_W, SIDE_H - HEAD_H - 8);
+    page_settings.create(s_settings);
+    lv_obj_set_hidden(s_settings, true);
+
     s_cur = 0;
     show_page(0);
+}
+
+static void open_settings(void)
+{
+    s_in_settings = true;
+    lv_obj_set_hidden(s_content[s_cur], true);
+    lv_obj_set_hidden(s_dots, true);
+    lv_obj_set_hidden(s_settings, false);
+    lv_label_set_text(s_title, page_settings.title);
+    lv_obj_fade_in(s_settings, 180, 0);
+    if(s_last) page_settings.update(s_last);
+}
+
+void page_host_toggle_settings(void)
+{
+    if(s_in_settings) show_page(s_cur);
+    else open_settings();
 }
 
 void page_host_update(const dash_data_t * d)
 {
     s_last = d;
-    PAGES[s_cur]->update(d);
+    if(s_in_settings) page_settings.update(d);
+    else PAGES[s_cur]->update(d);
 }
 
 void page_host_step(int dir)
 {
+    if(s_in_settings) {                  /* knob turn moves through rows */
+        page_settings.input(dir > 0 ? UI_IN_NEXT : UI_IN_PREV);
+        return;
+    }
     show_page((s_cur + dir + PAGE_COUNT) % PAGE_COUNT);
 }
 
-void page_host_home(void)
+void page_host_back(void)
 {
-    if(s_cur != 0) show_page(0);
+    if(s_in_settings) show_page(s_cur);
+    else if(s_cur != 0) show_page(0);
 }
 
 bool page_host_input(ui_input_t in)
 {
+    if(s_in_settings) return page_settings.input(in);
     return PAGES[s_cur]->input ? PAGES[s_cur]->input(in) : false;
 }

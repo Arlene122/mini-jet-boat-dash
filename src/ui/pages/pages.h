@@ -1,5 +1,6 @@
 /**
  * pages — the extra (non-engine) screens shown in the page zone.
+ * Swipe order: NAV, MUSIC, LIGHTS, RIDE. SETTINGS opens in the same zone.
  * Each page builds itself once, then updates only changed values.
  * Style: one hero value per page, hairlines instead of boxes.
  */
@@ -19,11 +20,13 @@ typedef struct {
     bool (*input)(ui_input_t in);             /* UP / DOWN / SELECT; NULL = none */
 } ui_page_t;
 
-extern const ui_page_t page_marine;
+/* Swipe pages (knob turn) */
+extern const ui_page_t page_nav;
 extern const ui_page_t page_music;
 extern const ui_page_t page_lights;
-extern const ui_page_t page_trip;
-extern const ui_page_t page_system;
+extern const ui_page_t page_ride;
+
+/* Not in the swipe order: opened by knob hold / Settings button */
 extern const ui_page_t page_settings;
 
 #define PAGE_PAD        30    /* gap from the zone's hairline */

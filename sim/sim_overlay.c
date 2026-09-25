@@ -20,18 +20,20 @@ static lv_obj_t * s_help;
 static int s_stencil_step;       /* 0 = 100%, 1 = 50%, 2 = off */
 
 static const char * HELP_KEYS =
-    "Left / Right\nEnter\nUp / Down\nEsc\n\nW / S\nSpace\n- / =\nF N R B\nM   K   P   E\n1 2 3 4 5\n0   A\nT   H";
+    "Left / Right\nEnter\nhold Enter / O\nUp / Down\nEsc\n\nW / S\nSpace\n- / =\nF N R B\nM   K   E\nP\n1 2 3 4 5\n0   A\nT   H";
 static const char * HELP_TEXT =
     "knob: previous / next page\n"
     "knob push: select / acknowledge\n"
+    "knob hold / Settings button\n"
     "5-way: move in page\n"
-    "home page\n"
+    "back\n"
     "\n"
     "throttle +/-\n"
     "throttle off\n"
     "fuel -/+ 5%\n"
     "iBR fwd / neutral / rev / brake\n"
-    "mode / DESS key / phone / ECU cable\n"
+    "mode / DESS key / ECU cable\n"
+    "phone in / out of range\n"
     "eng / oil / heat / fuel / batt warning\n"
     "clear warnings / auto demo\n"
     "stencil / this help";

@@ -1,6 +1,7 @@
 /**
- * page_settings — UP/DOWN picks a row, knob push changes its value.
- * Changes apply immediately and are saved (settings.c).
+ * page_settings — set-and-forget options (phone pairing lives on Music).
+ * Knob turn or UP/DOWN picks a row, knob push changes it. Changes apply
+ * immediately and are saved (settings.c). Back / Settings button closes.
  */
 #include "pages.h"
 
@@ -10,10 +11,16 @@
 
 /* ---------- Rows ---------- */
 
-typedef enum { ROW_SPEED = 0, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_COUNT } row_t;
-static const char * ROW_NAME[ROW_COUNT] = { "SPEED UNIT", "TEMPERATURE", "CLOCK", "BRIGHTNESS", "RIDE LOGGING" };
+typedef enum {
+    ROW_SPEED = 0, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_WIFI, ROW_FUEL, ROW_ABOUT, ROW_COUNT
+} row_t;
+static const char * ROW_NAME[ROW_COUNT] = {
+    "SPEED UNIT", "TEMPERATURE", "CLOCK", "BRIGHTNESS", "RIDE LOGGING", "WI-FI HOTSPOT",
+    "FUEL CALIBRATION", "SOFTWARE",
+};
 
-#define ROW_STEP (LIST_ROW_H + 8)
+#define ROW_STEP (LIST_ROW_H + 2)
+#define SW_VERSION "v0.4 sim"
 
 static lv_obj_t * s_row[ROW_COUNT], * s_val[ROW_COUNT], * s_mark;
 static int s_focus;
@@ -30,6 +37,9 @@ static void show(void)
     ui_label_printf(s_val[ROW_CLOCK], "%s", s->clock_12h ? "12 h" : "24 h");
     ui_label_printf(s_val[ROW_BRIGHT], "%d %%", s->brightness);
     ui_label_printf(s_val[ROW_LOG], "%s", s->logging ? "On" : "Off");
+    ui_label_printf(s_val[ROW_WIFI], "%s", dash_data_get()->wifi_ok ? "Joined" : "Off");
+    ui_label_printf(s_val[ROW_FUEL], "Later");
+    ui_label_printf(s_val[ROW_ABOUT], "%s", SW_VERSION);
     for(int i = 0; i < ROW_COUNT; i++) {
         if(i == s_focus) lv_obj_add_style(s_val[i], ui_style_accent_text(), 0);
         else lv_obj_remove_style(s_val[i], ui_style_accent_text(), 0);
@@ -61,10 +71,6 @@ static void create(lv_obj_t * p)
     s_mark = ui_box(p, 0, 0, 3, LIST_ROW_H - 24);
     lv_obj_set_style_radius(s_mark, 2, 0);
     lv_obj_add_style(s_mark, ui_style_accent_bg(), 0);
-    lv_obj_t * hint = ui_caption(p, "UP/DOWN: CHOOSE     PUSH: CHANGE");
-    lv_obj_set_style_text_font(hint, &lv_font_montserrat_16, 0);
-    lv_obj_set_style_text_letter_space(hint, 1, 0);
-    lv_obj_align(hint, LV_ALIGN_BOTTOM_LEFT, 0, 0);
     show();
 }
 
@@ -79,8 +85,10 @@ static void update(const dash_data_t * d)
 static bool input(ui_input_t in)
 {
     switch(in) {
-        case UI_IN_UP:     s_focus = (s_focus + ROW_COUNT - 1) % ROW_COUNT; break;
-        case UI_IN_DOWN:   s_focus = (s_focus + 1) % ROW_COUNT; break;
+        case UI_IN_UP:
+        case UI_IN_PREV:   s_focus = (s_focus + ROW_COUNT - 1) % ROW_COUNT; break;
+        case UI_IN_DOWN:
+        case UI_IN_NEXT:   s_focus = (s_focus + 1) % ROW_COUNT; break;
         case UI_IN_SELECT: change(); break;
         default: return false;
     }
