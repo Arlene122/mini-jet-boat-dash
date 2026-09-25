@@ -1,15 +1,15 @@
 /**
- * tilt_bar — trapezoid bar with a slight 3D tilt that follows the bezel's
- * slanted edges (top / bottom status bars).
+ * tilt_bar — trapezoid status bar with a slight 3D tilt toward the screen
+ * centre and a horizontal gradient (dark ends, accent-tinted middle).
  */
 #ifndef TILT_BAR_H
 #define TILT_BAR_H
 
 #include "lvgl.h"
 
-/* wide_top: true = wide edge on top (bottom bar), false = wide at bottom
- * (top bar). inset_l / inset_r = how far the narrow edge slants in. */
+/* narrow_bottom: true for the top bar (inner edge = bottom), false for the
+ * bottom bar. inset = how far the inner edge is pulled in at each end. */
 lv_obj_t * tilt_bar_create(lv_obj_t * parent, int32_t x, int32_t y, int32_t w, int32_t h,
-                           int32_t inset_l, int32_t inset_r, bool wide_top);
+                           int32_t inset, bool narrow_bottom);
 
 #endif /* TILT_BAR_H */
