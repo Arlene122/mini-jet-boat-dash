@@ -4,6 +4,7 @@
  */
 #include "ui.h"
 
+#include "cluster_brackets.h"
 #include "gauge_speed.h"
 #include "lvgl.h"
 #include "page_host.h"
@@ -11,7 +12,9 @@
 #include "ui_input.h"
 #include "ui_theme.h"
 #include "warn_banner.h"
+#include "../dash_data/dash_cmd.h"
 #include "../dash_data/dash_data.h"
+#include "../settings/settings.h"
 
 /* ---------- Config ---------- */
 
@@ -21,12 +24,19 @@
 /* ---------- State ---------- */
 
 static uint32_t s_last_seq = UINT32_MAX;
+static uint32_t s_settings_seq = UINT32_MAX;
 
 /* ---------- Refresh ---------- */
 
 static void ui_poll_cb(lv_timer_t * t)
 {
     LV_UNUSED(t);
+    if(settings_seq() != s_settings_seq) {   /* units / brightness changed */
+        s_settings_seq = settings_seq();
+        gauge_speed_apply_settings();
+        dash_cmd_brightness(settings_get()->brightness);
+        s_last_seq = UINT32_MAX;
+    }
     uint32_t seq = dash_data_seq();
     if(seq == s_last_seq) return;   /* nothing new: no redraw */
     s_last_seq = seq;
@@ -38,7 +48,8 @@ static void ui_poll_cb(lv_timer_t * t)
 static void sweep_exec(void * var, int32_t v)
 {
     LV_UNUSED(var);
-    gauge_speed_set_arcs(v * GAUGE_SPEED_MAX / 1000, v * GAUGE_RPM_MAX / 1000);
+    gauge_speed_set_arc(v * GAUGE_SPEED_MAX / 1000);
+    cluster_brackets_sweep(v);
 }
 
 static void sweep_done(lv_anim_t * a)
@@ -74,7 +85,8 @@ void ui_input(ui_input_t in)
     switch(in) {
         case UI_IN_NEXT: page_host_step(1); break;
         case UI_IN_PREV: page_host_step(-1); break;
-        case UI_IN_HOME: page_host_home(); break;
+        case UI_IN_BACK: page_host_back(); break;
+        case UI_IN_SETTINGS: page_host_toggle_settings(); break;
         default: page_host_input(in); break;
     }
 }

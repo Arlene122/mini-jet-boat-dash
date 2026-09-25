@@ -1,37 +1,46 @@
 /**
- * panel_engine — big numbers with slim bars, right-aligned toward the gauge.
+ * panel_engine — left zone, mirror of the page zone: fading hairline on
+ * its inner (right) edge, stats right-aligned toward the gauges.
  */
 #include "panel_engine.h"
 
-#include "gauge_speed.h"
 #include "ui_layout.h"
 #include "ui_theme.h"
 #include "ui_util.h"
-
-LV_FONT_DECLARE(font_digits_72);
+#include "../settings/settings.h"
 
 /* ---------- Config ---------- */
 
-#define FUEL_LOW_PCT   15
-#define TEMP_HOT_C     95
-#define BATT_LOW_V10   118
+#define TEMP_HOT_C    95
+#define BATT_LOW_V10  118
+#define PAD           30
+#define ROW_H         132
+#define TOP           60
 
 /* ---------- Widgets ---------- */
 
-static lv_obj_t * s_rpm, * s_rpm_bar;
-static lv_obj_t * s_fuel, * s_fuel_bar;
-static lv_obj_t * s_temp, * s_batt;
-static bool s_fuel_low;
+static lv_obj_t * s_temp, * s_temp_u, * s_batt, * s_rate;
+static lv_obj_t * s_ic_bt, * s_ic_gps, * s_ic_wifi, * s_ic_log;
 
 /* ---------- Helpers ---------- */
 
-static lv_obj_t * row(lv_obj_t * p, int32_t y, const char * cap, const lv_font_t * font, lv_obj_t ** value)
+static lv_obj_t * stat(lv_obj_t * p, int32_t y, const char * cap, const char * unit, lv_obj_t ** unit_lbl)
 {
+    int32_t right = -PAD;
     lv_obj_t * c = ui_caption(p, cap);
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, y);
-    *value = ui_label(p, font, C_TEXT, "");
-    lv_obj_align(*value, LV_ALIGN_TOP_RIGHT, 0, y + 22);
-    return c;
+    lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
+    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, right, y);
+
+    lv_obj_t * row = ui_box(p, 0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END);
+    lv_obj_set_style_pad_column(row, 8, 0);
+    lv_obj_align(row, LV_ALIGN_TOP_RIGHT, right, y + 22);
+    lv_obj_t * v = ui_label(row, &lv_font_montserrat_48, C_TEXT, "--");
+    lv_obj_t * u = ui_label(row, &lv_font_montserrat_20, C_DIM, unit);
+    lv_obj_set_style_pad_bottom(u, 9, 0);
+    if(unit_lbl) *unit_lbl = u;
+    return v;
 }
 
 /* ---------- API ---------- */
@@ -39,52 +48,45 @@ static lv_obj_t * row(lv_obj_t * p, int32_t y, const char * cap, const lv_font_t
 void panel_engine_create(lv_obj_t * parent)
 {
     lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1, ENGINE_W, SIDE_H);
+    ui_fade_line(p, ENGINE_W - 1, 0, SIDE_H, true, LV_OPA_60);
 
-    row(p, 0, "RPM", &font_digits_72, &s_rpm);
-    s_rpm_bar = ui_slim_bar(p, 300, 6, GAUGE_RPM_MAX);
-    lv_obj_align(s_rpm_bar, LV_ALIGN_TOP_RIGHT, 0, 112);
-
-    row(p, 140, "FUEL", &font_digits_72, &s_fuel);
-    s_fuel_bar = ui_slim_bar(p, 300, 6, 100);
-    lv_obj_align(s_fuel_bar, LV_ALIGN_TOP_RIGHT, 0, 252);
-    lv_obj_t * e = ui_label(p, &lv_font_montserrat_16, C_DIM, "E");
-    lv_obj_align_to(e, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 4);
-    lv_obj_t * f = ui_label(p, &lv_font_montserrat_16, C_DIM, "F");
-    lv_obj_align_to(f, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 4);
-
-    lv_obj_t * c = ui_caption(p, "ENGINE");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, -170, 312);
-    s_temp = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_temp, LV_ALIGN_TOP_RIGHT, -170, 336);
-    c = ui_caption(p, "BATTERY");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, 312);
-    s_batt = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_batt, LV_ALIGN_TOP_RIGHT, 0, 336);
+    /* Quiet status icons: phone, GPS, hotspot, logging (lit when active) */
+    lv_obj_t * icons = ui_box(p, 0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(icons, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_column(icons, 18, 0);
+    lv_obj_align(icons, LV_ALIGN_TOP_RIGHT, -PAD, 10);
+    s_ic_log = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_SD_CARD);
+    s_ic_wifi = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_WIFI);
+    s_ic_gps = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_GPS);
+    s_ic_bt = ui_label(icons, &lv_font_montserrat_20, C_OFF, LV_SYMBOL_BLUETOOTH);
+    s_temp = stat(p, TOP, "ENGINE TEMP", "", &s_temp_u);
+    s_batt = stat(p, TOP + ROW_H, "BATTERY", "V", NULL);
+    s_rate = stat(p, TOP + ROW_H * 2, "FUEL USE", "L/h", NULL);
+    for(int i = 1; i < 3; i++) {
+        ui_fade_line(p, ENGINE_W - PAD - 200, TOP + ROW_H * i - 24, 200, false, LV_OPA_30);
+    }
 }
 
 void panel_engine_update(const dash_data_t * d)
 {
-    int rpm = (d->rpm + 25) / 50 * 50;
-    ui_label_printf(s_rpm, "%d", rpm);
-    if(lv_bar_get_value(s_rpm_bar) != rpm) lv_bar_set_value(s_rpm_bar, rpm, LV_ANIM_OFF);
-    ui_set_text_color(s_rpm, rpm >= GAUGE_RPM_RED ? C_RED : C_TEXT);
-
-    int fuel = (int)(d->fuel_pct + 0.5f);
-    ui_label_printf(s_fuel, "%d%%", fuel);
-    if(lv_bar_get_value(s_fuel_bar) != fuel) lv_bar_set_value(s_fuel_bar, fuel, LV_ANIM_OFF);
-    bool low = fuel <= FUEL_LOW_PCT;
-    if(low != s_fuel_low) {
-        s_fuel_low = low;
-        if(low) lv_obj_set_style_bg_color(s_fuel_bar, C_AMBER, LV_PART_INDICATOR);
-        else lv_obj_remove_local_style_prop(s_fuel_bar, LV_STYLE_BG_COLOR, LV_PART_INDICATOR);
-        ui_set_text_color(s_fuel, low ? C_AMBER : C_TEXT);
+    if(!d->ecu_ok) {
+        ui_label_printf(s_temp, "--");
+        ui_label_printf(s_batt, "--");
+        ui_label_printf(s_rate, "--");
     }
+    else {
+        ui_label_printf(s_temp, "%d", settings_temp(d->engine_temp_c));
+        ui_set_text_color(s_temp, d->engine_temp_c >= TEMP_HOT_C ? C_RED : C_TEXT);
+        int b10 = (int)(d->battery_v * 10.0f + 0.5f);
+        ui_label_printf(s_batt, "%d.%d", b10 / 10, b10 % 10);
+        ui_set_text_color(s_batt, b10 <= BATT_LOW_V10 ? C_AMBER : C_TEXT);
+        ui_label_printf(s_rate, "%.1f", (double)d->fuel_rate_lph);
+    }
+    ui_label_printf(s_temp_u, "%s", settings_temp_unit());
 
-    int temp = (int)(d->engine_temp_c + 0.5f);
-    ui_label_printf(s_temp, "%d°", temp);
-    ui_set_text_color(s_temp, temp >= TEMP_HOT_C ? C_RED : C_TEXT);
-
-    int b10 = (int)(d->battery_v * 10.0f + 0.5f);
-    ui_label_printf(s_batt, "%d.%dV", b10 / 10, b10 % 10);
-    ui_set_text_color(s_batt, b10 <= BATT_LOW_V10 ? C_AMBER : C_TEXT);
+    ui_set_text_color(s_ic_bt, d->music.bt == DASH_BT_CONNECTED ? C_DIM :
+                               d->music.bt == DASH_BT_OFF ? C_OFF : C_AMBER);
+    ui_set_text_color(s_ic_gps, d->marine.gps_fix ? C_DIM : C_AMBER);
+    ui_set_text_color(s_ic_wifi, d->wifi_ok ? C_DIM : C_OFF);
+    ui_set_text_color(s_ic_log, settings_get()->logging ? C_DIM : C_OFF);
 }

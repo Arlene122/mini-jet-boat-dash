@@ -8,8 +8,9 @@ ESP32-P4 + LVGL v9 (C). See `Requirements.md`, `Claude_Rules.md`, `Claude_Memory
 **https://arlene122.github.io/mini-jet-boat-dash/**
 
 Click the dash, then use the keys listed under it. **← →** = knob (pages),
-**Enter** = knob push, **↑ ↓** = 5-way, **W/S** = throttle, **M** = mode,
-**1–5** = warnings. **H** = on-screen help, **T** = bezel stencil.
+**Enter** = knob push (hold = Settings), **O** = Settings button, **↑ ↓** = 5-way,
+**Esc** = back, **W/S** = throttle, **M** = mode, **1–5** = warnings, **E** = unplug ECU,
+**P** = phone in/out of range. **H** = on-screen help, **T** = bezel stencil.
 
 The browser page is only a host: the dash itself is the same C/LVGL code that
 will run on the ESP32-P4, compiled to WebAssembly by GitHub Actions.

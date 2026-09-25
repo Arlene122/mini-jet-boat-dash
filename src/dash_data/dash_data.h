@@ -1,9 +1,12 @@
 /**
  * dash_data — the ONLY place the UI gets values from.
  *
- * A data source (fake ECU simulator, CAN replay, or real CAN + GPS + audio
- * board) writes values with dash_data_set(). The UI reads a snapshot with
- * dash_data_get() and redraws only what changed. Same code on PC and P4.
+ * Data sources write their own fields via dash_data_edit():
+ *   engine  <- CAN frames decoded by dash_task (fake ECU, replay or boat)
+ *   GPS     <- GPS module (simulator: fake GPS)
+ *   music   <- audio board   · lights <- relay board
+ * dash_task commits once per step; the UI reads dash_data_get() and
+ * redraws only what changed. Same code on PC and P4.
  * UI -> boat actions go the other way through dash_cmd.h.
  */
 #ifndef DASH_DATA_H
@@ -53,8 +56,17 @@ enum {
 
 /* ---------- Grouped data ---------- */
 
+/* Phone link (audio board). Auto-reconnects to the last phone on power-up. */
+typedef enum {
+    DASH_BT_OFF = 0,        /* no phone, not looking */
+    DASH_BT_SEARCHING,      /* trying the last paired phone */
+    DASH_BT_PAIRING,        /* visible, waiting for a new phone */
+    DASH_BT_CONNECTED,
+} dash_bt_t;
+
 typedef struct {
-    bool     connected;
+    dash_bt_t bt;
+    bool     connected;     /* == (bt == DASH_BT_CONNECTED) */
     bool     playing;
     char     phone[DASH_TEXT_LEN];
     char     title[DASH_TEXT_LEN];
@@ -69,8 +81,12 @@ typedef struct {
     float heading_deg;
     bool  water_temp_ok;
     float water_temp_c;
-    bool  tide_ok;
+    bool  depth_ok;         /* depth sounder fitted + reading (future sensor) */
+    float depth_m;
+    bool  tide_ok;          /* tide data from phone hotspot */
     float tide_m, tide_min_m, tide_max_m;
+    float tide_phase;       /* 0 = low water, 0.5 = high water, wraps at 1 */
+    uint16_t tide_period_min;   /* low-to-low, ~745 min */
 } dash_marine_t;
 
 typedef struct {
@@ -98,6 +114,8 @@ typedef struct {
     uint32_t warnings;       /* DASH_WARN_* flags */
     uint16_t error_code;     /* 0 = none */
     bool     dess_ok;        /* DESS key recognised */
+    bool     ecu_ok;         /* engine CAN data is fresh */
+    bool     wifi_ok;        /* phone hotspot joined (weather, tide, OTA) */
     uint8_t  lights;         /* bit n = light n+1 on (relay state) */
     dash_music_t  music;
     dash_marine_t marine;
@@ -112,10 +130,11 @@ void dash_data_init(void);
 /* Latest snapshot (read-only). */
 const dash_data_t * dash_data_get(void);
 
-/* Replace the snapshot (called by the active data source). */
-void dash_data_set(const dash_data_t * d);
+/* Sources change their fields in place, then (dash_task) commits. */
+dash_data_t * dash_data_edit(void);
+void dash_data_commit(void);
 
-/* Increments on every dash_data_set(); lets the UI skip idle frames. */
+/* Increments on every commit; lets the UI skip idle frames. */
 uint32_t dash_data_seq(void);
 
 #endif /* DASH_DATA_H */

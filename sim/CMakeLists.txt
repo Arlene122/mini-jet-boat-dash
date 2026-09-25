@@ -48,6 +48,7 @@ add_executable(dash_sim
     main.c
     fake_ecu.c
     sim_overlay.c
+    sim_platform.c
     ${DASH_SOURCES}
     ${CMAKE_CURRENT_BINARY_DIR}/stencil_img.c)
 target_link_libraries(dash_sim PRIVATE lvgl)

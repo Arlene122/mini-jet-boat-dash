@@ -1,8 +1,9 @@
 /**
  * fake_ecu — pretend 2015 Sea-Doo Spark ECU for the simulator.
  *
- * Phase 1: writes values straight into dash_data (source = SIM).
- * Phase 2: will emit CAN frames that go through the same decoder as the boat.
+ * Engine data goes out as CAN frames (placeholder protocol) through the
+ * simulated bus -> dash_task decoder, like on the boat. Also fakes GPS,
+ * audio board and light relays.
  */
 #ifndef FAKE_ECU_H
 #define FAKE_ECU_H

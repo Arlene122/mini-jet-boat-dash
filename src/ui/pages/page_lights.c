@@ -11,7 +11,7 @@
 
 /* ---------- Boat outline (content-area coords, bow up) ---------- */
 
-#define HULL_X  150
+#define HULL_X  92
 static const lv_point_precise_t HULL[] = {
     { 80, 0 }, { 120, 30 }, { 150, 110 }, { 160, 200 }, { 155, 300 },
     { 5, 300 }, { 0, 200 }, { 10, 110 }, { 40, 30 }, { 80, 0 },
@@ -66,8 +66,9 @@ static void create(lv_obj_t * p)
         s_light[i] = o;
     }
     s_name = ui_caption(p, "");
+    lv_obj_set_style_text_font(s_name, &lv_font_montserrat_16, 0);
     lv_obj_align(s_name, LV_ALIGN_BOTTOM_LEFT, 0, -8);
-    s_state = ui_label(p, &lv_font_montserrat_28, C_DIM, "");
+    s_state = ui_label(p, &lv_font_montserrat_24, C_DIM, "");
     lv_obj_add_style(s_state, ui_style_accent_text(), 0);
     lv_obj_align(s_state, LV_ALIGN_BOTTOM_RIGHT, 0, -4);
 }

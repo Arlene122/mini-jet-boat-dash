@@ -1,6 +1,6 @@
 /**
- * gauge_speed — centre gauge: big digital speed, slim speed arc with ticks,
- * RPM arc inside it, knots, and iBR (R N F / BRAKE) in the bottom gap.
+ * gauge_speed — centre speed ring: glowing 270° ring, fine ticks, big
+ * digital speed in the chosen unit, secondary unit, iBR pill.
  */
 #ifndef GAUGE_SPEED_H
 #define GAUGE_SPEED_H
@@ -14,10 +14,13 @@
 
 void gauge_speed_create(lv_obj_t * parent);
 
-/* Arcs only (used by the key-on sweep) */
-void gauge_speed_set_arcs(int32_t speed_kmh, int32_t rpm);
+/* Ring only (key-on sweep) */
+void gauge_speed_set_arc(int32_t speed_kmh);
 
-/* Full update from data (numbers, arcs, iBR) */
-void gauge_speed_update(const dash_data_t * d, bool arcs);
+/* Numbers, ring, iBR */
+void gauge_speed_update(const dash_data_t * d, bool arc);
+
+/* Re-label ticks / units after a settings change */
+void gauge_speed_apply_settings(void);
 
 #endif /* GAUGE_SPEED_H */
