@@ -5,6 +5,7 @@
 #include "screen_main.h"
 
 #include "frame_line.h"
+#include "cluster_brackets.h"
 #include "gauge_speed.h"
 #include "page_host.h"
 #include "panel_engine.h"
@@ -13,6 +14,7 @@
 #include "ui_theme.h"
 #include "ui_util.h"
 #include "warn_banner.h"
+#include "../settings/settings.h"
 
 /* ---------- Widgets ---------- */
 
@@ -67,9 +69,9 @@ static void build_bottom_bar(lv_obj_t * scr)
     }
 
     s_source = ui_label(bar, &lv_font_montserrat_20, C_DIM, "");
-    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, -45, 0);
+    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, -30, 0);
     s_dess = ui_label(bar, &lv_font_montserrat_20, C_TEXT, "");
-    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, -100, 0);
+    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, -135, 0);
 }
 
 lv_obj_t * screen_main_create(void)
@@ -82,6 +84,7 @@ lv_obj_t * screen_main_create(void)
     build_top_bar(scr);
     build_bottom_bar(scr);
     panel_engine_create(scr);
+    cluster_brackets_create(scr);
     gauge_speed_create(scr);
     page_host_create(scr);
     warn_banner_create(scr);
@@ -92,8 +95,10 @@ lv_obj_t * screen_main_create(void)
 
 static void update_bars(const dash_data_t * d)
 {
-    ui_label_printf(s_trip, "TRIP  %.1f km", (double)d->trip_km);
+    ui_label_printf(s_trip, "TRIP  %.1f %s", (double)settings_dist(d->trip_km), settings_dist_unit());
     if(d->clock_h < 0) ui_label_printf(s_clock, "--:--");
+    else if(settings_get()->clock_12h)
+        ui_label_printf(s_clock, "%d:%02d %s", (d->clock_h + 11) % 12 + 1, d->clock_m, d->clock_h < 12 ? "AM" : "PM");
     else ui_label_printf(s_clock, "%02d:%02d", d->clock_h, d->clock_m);
     ui_label_printf(s_hours, "%.1f h", (double)d->engine_hours);
 
@@ -103,7 +108,9 @@ static void update_bars(const dash_data_t * d)
     ui_label_printf(s_dess, "%s", d->dess_ok ? LV_SYMBOL_OK " DESS" : LV_SYMBOL_CLOSE " NO KEY");
     ui_set_text_color(s_dess, d->dess_ok ? C_DIM : C_RED);
     static const char * src[] = { "SIM", "REPLAY", "CAN" };
-    ui_label_printf(s_source, "%s", src[d->source]);
+    if(d->ecu_ok) ui_label_printf(s_source, "%s", src[d->source]);
+    else ui_label_printf(s_source, "NO ECU");
+    ui_set_text_color(s_source, d->ecu_ok ? C_DIM : C_AMBER);
 
     for(size_t i = 0; i < WARN_ITEMS; i++) {
         bool on = (d->warnings & s_warn[i].flag) != 0;
@@ -116,6 +123,7 @@ void screen_main_update(const dash_data_t * d)
     ui_theme_set_mode(d->mode);
     update_bars(d);
     panel_engine_update(d);
+    cluster_brackets_update(d, !s_sweep);
     gauge_speed_update(d, !s_sweep);
     page_host_update(d);
     warn_banner_update(d);

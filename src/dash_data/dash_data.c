@@ -17,7 +17,6 @@ static uint32_t s_seq;
 void dash_data_init(void)
 {
     memset(&s_data, 0, sizeof(s_data));
-    s_data.fuel_pct = 100.0f;
     s_data.battery_v = 12.6f;
     s_data.engine_temp_c = 20.0f;
     s_data.ibr = DASH_IBR_NEUTRAL;
@@ -31,9 +30,13 @@ const dash_data_t * dash_data_get(void)
     return &s_data;
 }
 
-void dash_data_set(const dash_data_t * d)
+dash_data_t * dash_data_edit(void)
 {
-    s_data = *d;
+    return &s_data;
+}
+
+void dash_data_commit(void)
+{
     s_seq++;
 }
 

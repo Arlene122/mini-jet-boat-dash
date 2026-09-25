@@ -4,8 +4,7 @@
  *
  *   ____________        [ trip | clock | hours ]        ____________
  *               \______________________________________/     <- frame line
- *   engine panel |   speed gauge + RPM inner arc   | page card
- *    ___________________________________________________
+ *   engine stats  /RPM|  ( speed ring )  |FUEL\   page card
  *   ____________/  [ mode | warnings | DESS ]  \_____________ <- frame line
  */
 #ifndef UI_LAYOUT_H
@@ -34,15 +33,25 @@
 /* Centre gauge (between the dipped lines) */
 #define GAUGE_CX       (UI_HOR_RES / 2)
 #define GAUGE_CY       ((FRAME_TOP_IN + FRAME_BOT_IN) / 2)
-#define GAUGE_R        232
+#define GAUGE_R        236          /* outer hairline + glow */
+
+/* Bracket gauges either side of the ring (left = RPM, right = mirrored FUEL):
+ * top-inner, outer corner, bottom-outer, foot-inner */
+#define BRK_TOP_X      740
+#define BRK_TOP_Y      142
+#define BRK_OUT_X      600
+#define BRK_OUT_Y      282
+#define BRK_BOT_X      630
+#define BRK_BOT_Y      560
+#define BRK_FOOT_X     740
 
 /* Side zones */
 #define SIDE_Y1        (FRAME_TOP_IN + 16)
 #define SIDE_Y2        (FRAME_BOT_IN - 16)
 #define SIDE_H         (SIDE_Y2 - SIDE_Y1)
-#define ENGINE_X       225
-#define ENGINE_W       450
-#define PAGE_X         1250
-#define PAGE_W         480
+#define ENGINE_X       240
+#define ENGINE_W       320
+#define PAGE_X         1350
+#define PAGE_W         385
 
 #endif /* UI_LAYOUT_H */

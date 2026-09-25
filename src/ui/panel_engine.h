@@ -1,5 +1,5 @@
 /**
- * panel_engine — left zone: RPM, fuel, engine temp, battery.
+ * panel_engine — left zone: engine temp, battery, fuel use.
  */
 #ifndef PANEL_ENGINE_H
 #define PANEL_ENGINE_H

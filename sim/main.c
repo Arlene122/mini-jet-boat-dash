@@ -10,6 +10,8 @@
 #endif
 
 #include "../src/dash_data/dash_data.h"
+#include "../src/dash_data/dash_task.h"
+#include "../src/settings/settings.h"
 #include "../src/ui/ui.h"
 #include "../src/ui/ui_input.h"
 #include "fake_ecu.h"
@@ -37,6 +39,14 @@ static int key_watch(void * user, SDL_Event * e)
     return 0;
 }
 
+/* ---------- Data loop (P4: its own task) ---------- */
+
+static void dash_task_cb(lv_timer_t * t)
+{
+    LV_UNUSED(t);
+    dash_task_step(lv_tick_get());
+}
+
 /* ---------- Main loop ---------- */
 
 #ifdef __EMSCRIPTEN__
@@ -55,9 +65,12 @@ int main(void)
     SDL_AddEventWatch(key_watch, NULL);
 
     dash_data_init();
+    settings_init();
+    dash_task_init();
     fake_ecu_init();
-    ui_init();
+    lv_timer_create(dash_task_cb, 10, NULL);
     sim_overlay_init();
+    ui_init();
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(loop_once, 0, 1);

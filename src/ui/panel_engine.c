@@ -1,90 +1,71 @@
 /**
- * panel_engine — big numbers with slim bars, right-aligned toward the gauge.
+ * panel_engine — left zone: calm stat list (engine temp, battery,
+ * fuel use) with hairline dividers. RPM and fuel live in the brackets.
  */
 #include "panel_engine.h"
 
-#include "gauge_speed.h"
 #include "ui_layout.h"
 #include "ui_theme.h"
 #include "ui_util.h"
-
-LV_FONT_DECLARE(font_digits_72);
+#include "../settings/settings.h"
 
 /* ---------- Config ---------- */
 
-#define FUEL_LOW_PCT   15
-#define TEMP_HOT_C     95
-#define BATT_LOW_V10   118
+#define TEMP_HOT_C    95
+#define BATT_LOW_V10  118
+#define ROW_H         140
 
 /* ---------- Widgets ---------- */
 
-static lv_obj_t * s_rpm, * s_rpm_bar;
-static lv_obj_t * s_fuel, * s_fuel_bar;
-static lv_obj_t * s_temp, * s_batt;
-static bool s_fuel_low;
+static lv_obj_t * s_temp, * s_temp_u, * s_batt, * s_rate;
 
 /* ---------- Helpers ---------- */
 
-static lv_obj_t * row(lv_obj_t * p, int32_t y, const char * cap, const lv_font_t * font, lv_obj_t ** value)
+static lv_obj_t * stat(lv_obj_t * p, int32_t y, const char * cap, const char * unit, lv_obj_t ** unit_lbl)
 {
     lv_obj_t * c = ui_caption(p, cap);
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, y);
-    *value = ui_label(p, font, C_TEXT, "");
-    lv_obj_align(*value, LV_ALIGN_TOP_RIGHT, 0, y + 22);
-    return c;
+    lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
+    lv_obj_set_pos(c, 0, y);
+    lv_obj_t * row = ui_box(p, 0, y + 22, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END);
+    lv_obj_set_style_pad_column(row, 8, 0);
+    lv_obj_t * v = ui_label(row, &lv_font_montserrat_48, C_TEXT, "--");
+    lv_obj_t * u = ui_label(row, &lv_font_montserrat_20, C_DIM, unit);
+    lv_obj_set_style_pad_bottom(u, 9, 0);
+    if(unit_lbl) *unit_lbl = u;
+    if(y > 0) {
+        lv_obj_t * line = ui_box(p, 0, y - 22, ENGINE_W - 60, 1);
+        lv_obj_set_style_bg_color(line, C_LINE, 0);
+        lv_obj_set_style_bg_opa(line, LV_OPA_COVER, 0);
+    }
+    return v;
 }
 
 /* ---------- API ---------- */
 
 void panel_engine_create(lv_obj_t * parent)
 {
-    lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1, ENGINE_W, SIDE_H);
-
-    row(p, 0, "RPM", &font_digits_72, &s_rpm);
-    s_rpm_bar = ui_slim_bar(p, 300, 6, GAUGE_RPM_MAX);
-    lv_obj_align(s_rpm_bar, LV_ALIGN_TOP_RIGHT, 0, 112);
-
-    row(p, 140, "FUEL", &font_digits_72, &s_fuel);
-    s_fuel_bar = ui_slim_bar(p, 300, 6, 100);
-    lv_obj_align(s_fuel_bar, LV_ALIGN_TOP_RIGHT, 0, 252);
-    lv_obj_t * e = ui_label(p, &lv_font_montserrat_16, C_DIM, "E");
-    lv_obj_align_to(e, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 4);
-    lv_obj_t * f = ui_label(p, &lv_font_montserrat_16, C_DIM, "F");
-    lv_obj_align_to(f, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 4);
-
-    lv_obj_t * c = ui_caption(p, "ENGINE");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, -170, 312);
-    s_temp = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_temp, LV_ALIGN_TOP_RIGHT, -170, 336);
-    c = ui_caption(p, "BATTERY");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, 312);
-    s_batt = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_batt, LV_ALIGN_TOP_RIGHT, 0, 336);
+    lv_obj_t * p = ui_box(parent, ENGINE_X, SIDE_Y1 + 20, ENGINE_W, SIDE_H - 20);
+    s_temp = stat(p, 0, "ENGINE TEMP", "", &s_temp_u);
+    s_batt = stat(p, ROW_H, "BATTERY", "V", NULL);
+    s_rate = stat(p, ROW_H * 2, "FUEL USE", "L/h", NULL);
 }
 
 void panel_engine_update(const dash_data_t * d)
 {
-    int rpm = (d->rpm + 25) / 50 * 50;
-    ui_label_printf(s_rpm, "%d", rpm);
-    if(lv_bar_get_value(s_rpm_bar) != rpm) lv_bar_set_value(s_rpm_bar, rpm, LV_ANIM_OFF);
-    ui_set_text_color(s_rpm, rpm >= GAUGE_RPM_RED ? C_RED : C_TEXT);
-
-    int fuel = (int)(d->fuel_pct + 0.5f);
-    ui_label_printf(s_fuel, "%d%%", fuel);
-    if(lv_bar_get_value(s_fuel_bar) != fuel) lv_bar_set_value(s_fuel_bar, fuel, LV_ANIM_OFF);
-    bool low = fuel <= FUEL_LOW_PCT;
-    if(low != s_fuel_low) {
-        s_fuel_low = low;
-        if(low) lv_obj_set_style_bg_color(s_fuel_bar, C_AMBER, LV_PART_INDICATOR);
-        else lv_obj_remove_local_style_prop(s_fuel_bar, LV_STYLE_BG_COLOR, LV_PART_INDICATOR);
-        ui_set_text_color(s_fuel, low ? C_AMBER : C_TEXT);
+    if(!d->ecu_ok) {
+        ui_label_printf(s_temp, "--");
+        ui_label_printf(s_batt, "--");
+        ui_label_printf(s_rate, "--");
     }
-
-    int temp = (int)(d->engine_temp_c + 0.5f);
-    ui_label_printf(s_temp, "%d°", temp);
-    ui_set_text_color(s_temp, temp >= TEMP_HOT_C ? C_RED : C_TEXT);
-
-    int b10 = (int)(d->battery_v * 10.0f + 0.5f);
-    ui_label_printf(s_batt, "%d.%dV", b10 / 10, b10 % 10);
-    ui_set_text_color(s_batt, b10 <= BATT_LOW_V10 ? C_AMBER : C_TEXT);
+    else {
+        ui_label_printf(s_temp, "%d", settings_temp(d->engine_temp_c));
+        ui_set_text_color(s_temp, d->engine_temp_c >= TEMP_HOT_C ? C_RED : C_TEXT);
+        int b10 = (int)(d->battery_v * 10.0f + 0.5f);
+        ui_label_printf(s_batt, "%d.%d", b10 / 10, b10 % 10);
+        ui_set_text_color(s_batt, b10 <= BATT_LOW_V10 ? C_AMBER : C_TEXT);
+        ui_label_printf(s_rate, "%.1f", (double)d->fuel_rate_lph);
+    }
+    ui_label_printf(s_temp_u, "%s", settings_temp_unit());
 }

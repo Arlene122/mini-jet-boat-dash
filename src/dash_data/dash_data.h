@@ -1,9 +1,12 @@
 /**
  * dash_data — the ONLY place the UI gets values from.
  *
- * A data source (fake ECU simulator, CAN replay, or real CAN + GPS + audio
- * board) writes values with dash_data_set(). The UI reads a snapshot with
- * dash_data_get() and redraws only what changed. Same code on PC and P4.
+ * Data sources write their own fields via dash_data_edit():
+ *   engine  <- CAN frames decoded by dash_task (fake ECU, replay or boat)
+ *   GPS     <- GPS module (simulator: fake GPS)
+ *   music   <- audio board   · lights <- relay board
+ * dash_task commits once per step; the UI reads dash_data_get() and
+ * redraws only what changed. Same code on PC and P4.
  * UI -> boat actions go the other way through dash_cmd.h.
  */
 #ifndef DASH_DATA_H
@@ -98,6 +101,7 @@ typedef struct {
     uint32_t warnings;       /* DASH_WARN_* flags */
     uint16_t error_code;     /* 0 = none */
     bool     dess_ok;        /* DESS key recognised */
+    bool     ecu_ok;         /* engine CAN data is fresh */
     uint8_t  lights;         /* bit n = light n+1 on (relay state) */
     dash_music_t  music;
     dash_marine_t marine;
@@ -112,10 +116,11 @@ void dash_data_init(void);
 /* Latest snapshot (read-only). */
 const dash_data_t * dash_data_get(void);
 
-/* Replace the snapshot (called by the active data source). */
-void dash_data_set(const dash_data_t * d);
+/* Sources change their fields in place, then (dash_task) commits. */
+dash_data_t * dash_data_edit(void);
+void dash_data_commit(void);
 
-/* Increments on every dash_data_set(); lets the UI skip idle frames. */
+/* Increments on every commit; lets the UI skip idle frames. */
 uint32_t dash_data_seq(void);
 
 #endif /* DASH_DATA_H */

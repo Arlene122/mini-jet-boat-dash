@@ -1,23 +1,26 @@
 /**
  * sim_overlay — stencil image on the top layer + help panel.
  *   T: stencil opacity 100% -> 50% -> off
+ *   Brightness setting -> dark overlay (the P4 dims the panel instead)
  *   H: show / hide key help
  */
 #include "sim_overlay.h"
 
 #include "lvgl.h"
 #include LV_SDL_INCLUDE_PATH
+#include "../src/dash_data/dash_cmd.h"
 
 LV_IMAGE_DECLARE(stencil_img);   /* generated from assets/ by tools/stencil_to_c.py */
 
 /* ---------- State ---------- */
 
 static lv_obj_t * s_stencil;
+static lv_obj_t * s_dim;
 static lv_obj_t * s_help;
 static int s_stencil_step;       /* 0 = 100%, 1 = 50%, 2 = off */
 
 static const char * HELP_KEYS =
-    "Left / Right\nEnter\nUp / Down\nEsc\n\nW / S\nSpace\n- / =\nF N R B\nM   K   P\n1 2 3 4 5\n0   A\nT   H";
+    "Left / Right\nEnter\nUp / Down\nEsc\n\nW / S\nSpace\n- / =\nF N R B\nM   K   P   E\n1 2 3 4 5\n0   A\nT   H";
 static const char * HELP_TEXT =
     "knob: previous / next page\n"
     "knob push: select / acknowledge\n"
@@ -28,7 +31,7 @@ static const char * HELP_TEXT =
     "throttle off\n"
     "fuel -/+ 5%\n"
     "iBR fwd / neutral / rev / brake\n"
-    "mode / DESS key / phone\n"
+    "mode / DESS key / phone / ECU cable\n"
     "eng / oil / heat / fuel / batt warning\n"
     "clear warnings / auto demo\n"
     "stencil / this help";
@@ -47,6 +50,13 @@ static void apply_stencil(void)
 void sim_overlay_init(void)
 {
     lv_obj_t * top = lv_layer_top();
+
+    s_dim = lv_obj_create(top);
+    lv_obj_remove_style_all(s_dim);
+    lv_obj_set_size(s_dim, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_color(s_dim, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(s_dim, LV_OPA_TRANSP, 0);
+    lv_obj_set_clickable(s_dim, false);
 
     s_stencil = lv_image_create(top);
     lv_image_set_src(s_stencil, &stencil_img);
@@ -78,6 +88,14 @@ void sim_overlay_init(void)
     lv_label_set_text(text, HELP_TEXT);
     lv_obj_set_style_text_color(text, lv_color_hex(0xB8C2CE), 0);
     lv_obj_center(s_help);
+}
+
+void dash_cmd_brightness(uint8_t pct)
+{
+    if(!s_dim) return;
+    lv_opa_t opa = (lv_opa_t)((100 - pct) * 200 / 100);
+    lv_obj_set_style_bg_opa(s_dim, opa, 0);
+    lv_obj_set_hidden(s_dim, opa == 0);
 }
 
 bool sim_overlay_key(int key)

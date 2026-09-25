@@ -7,8 +7,10 @@ _Last updated: 2026-09-25 · Keep compact. Update often._
 ## 1. Status
 Phase 1 in progress. Repo structure + LVGL v9.6.0 simulator done; builds natively (SDL2) and to WebAssembly.
 GitHub Actions (`web-sim.yml`) builds every push, deploys to Pages from `main` → https://arlene122.github.io/mini-jet-boat-dash/
-Main screen v1 design built (see §2 UI). Stencil traced from owner's drawing → `assets/stencil.png`.
-Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S throttle, Space off, -/= fuel, F/N/R/B iBR, M mode, K DESS, P phone, 1–5 warnings, 0 clear, A demo · T stencil, H help.
+UI v2: ring speedo (ref image), bracket gauges (RPM left, fuel right), left stat list, glassy page card (Marine, Music, Lights, Trip, System, **Settings**). Stencil traced → `assets/stencil.png`.
+Data: fake ECU → CAN frames (**placeholder protocol**, `src/can/spark_can.*`, all UNVERIFIED) → sim bus → `dash_task` decode + ECU timeout (1 s → "NO ECU", engine values "--") + dash-side low fuel/batt + trip stats.
+Settings (units km/h/kn/mph + distance, °C/°F, 12/24 h, brightness, logging) saved via `settings_store_*` (sim: browser localStorage / file; P4: NVS later).
+Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S throttle, Space off, -/= fuel, F/N/R/B iBR, M mode, K DESS, P phone, E unplug ECU, 1–5 warnings, 0 clear, A demo · T stencil, H help.
 
 ## 2. Key Decisions
 - Mini jet boat w/ 2015 Spark engine+ECU; dash **replaces stock gauge**; iBR/modes/DESS must work.
@@ -31,6 +33,7 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 - Accent = **ice-cyan**, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts. Near-black bg.
 - Frame: glowing accent lines across top & bottom that dip ("pinch") in the middle; top/bottom bars sit in the notch, tilted toward centre, horizontal gradient (dark ends, accent-tinted middle) — from owner's old HTML look.
 - New warning → banner over page card (plain words + action), knob push acks; bottom-bar icon stays lit.
+- Platform hooks the P4 must implement: `can_bus_receive` (TWAI), `settings_store_load/save` (NVS), `dash_cmd_*` (relays, audio, brightness). No CAN TX API on purpose (safety).
 - Key-on sweep of arcs covers boot. UI→boat actions via `dash_cmd.h`; controls via `ui_input.h`; zones in `ui_layout.h`.
 - Spark 2015 900 HO: modes Touring (default) + Sport (manual); ECO UNVERIFIED. Top ~48–50 mph ≈ 80 km/h → speed scale 0–105 km/h.
 - Design refs (owner, later): glowing segmented blue arcs, bottom icon dock, perspective grid floor, clean thin digits; refs too dark → keep ours a bit brighter. Wants a "reveal" load-in animation when dash appears (after splash); splash could be jet-boat motion video (owner/AI-made). Speedo stays centre unless steering blocks view.
@@ -55,10 +58,11 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 Stencil is eye-traced from image (exact SVG would be better) · 5 light names (all-round white, LED strips, basic lights — owner to confirm) · end of owner msg "eventually add om…" cut off · day/night theme · ride summary on key-off · warning tone · 4 button functions · knob display · wake signal · fuel sender wiring · dash opening size · P4 board model.
 
 ## 6. Next Step
-Owner reviews v1 design in sim → tweak. Then: splash, day/night, settings page, ride summary; Phase 2 CAN-frame fake ECU.
+Owner reviews UI v2 → tweak. Then: splash + reveal anim, day/night, ride summary, logging file format, CAN replay (candump). Hardware when bought: P4 board + USB-CAN.
 
 ## 7. Change Log
 - 2026-09-25: Planning complete, docs created.
 - 2026-09-25: Rule 2 clarified: `Chat:` = planning mode, no code/file changes.
+- 2026-09-25: UI v2 (ring speedo, brackets, restyled pages), Settings page + saving, CAN placeholder pipeline + ECU timeout.
 - 2026-09-25: UI v1 design: centre gauge + RPM inner arc, engine panel, 5-page card, warning banner, mode tint, sweep; stencil traced.
 - 2026-09-25: Phase 1 start — repo structure, LVGL sim (native + WASM), fake ECU, placeholder screen, Pages CI.

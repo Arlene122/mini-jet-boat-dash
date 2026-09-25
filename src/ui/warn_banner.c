@@ -51,7 +51,7 @@ void warn_banner_create(lv_obj_t * parent)
     s_box = ui_box(parent, PAGE_X, SIDE_Y1, PAGE_W, SIDE_H);
     lv_obj_set_style_bg_color(s_box, lv_color_hex(0x140A0B), 0);
     lv_obj_set_style_bg_opa(s_box, LV_OPA_COVER, 0);
-    lv_obj_set_style_radius(s_box, 18, 0);
+    lv_obj_set_style_radius(s_box, 22, 0);
     lv_obj_set_style_border_width(s_box, 3, 0);
     lv_obj_set_style_shadow_width(s_box, 40, 0);
     lv_obj_set_style_shadow_opa(s_box, LV_OPA_50, 0);
@@ -59,14 +59,15 @@ void warn_banner_create(lv_obj_t * parent)
 
     s_icon = ui_label(s_box, &lv_font_montserrat_48, C_RED, LV_SYMBOL_WARNING);
     lv_obj_align(s_icon, LV_ALIGN_TOP_LEFT, 0, 0);
-    s_title = ui_label(s_box, &lv_font_montserrat_40, C_RED, "");
-    lv_obj_align(s_title, LV_ALIGN_TOP_LEFT, 70, 2);
-    s_msg = ui_label(s_box, &lv_font_montserrat_28, C_TEXT, "");
+    s_title = ui_label(s_box, &lv_font_montserrat_32, C_RED, "");
+    lv_obj_align(s_title, LV_ALIGN_TOP_LEFT, 64, 6);
+    s_msg = ui_label(s_box, &lv_font_montserrat_24, C_TEXT, "");
     lv_obj_set_width(s_msg, PAGE_W - 60);
     lv_obj_align(s_msg, LV_ALIGN_TOP_LEFT, 0, 90);
-    s_code = ui_label(s_box, &lv_font_montserrat_28, C_RED, "");
+    s_code = ui_label(s_box, &lv_font_montserrat_24, C_RED, "");
     lv_obj_align(s_code, LV_ALIGN_TOP_LEFT, 0, 200);
-    lv_obj_t * hint = ui_caption(s_box, "PRESS KNOB TO ACKNOWLEDGE");
+    lv_obj_t * hint = ui_caption(s_box, "PUSH KNOB TO ACKNOWLEDGE");
+    lv_obj_set_style_text_font(hint, &lv_font_montserrat_16, 0);
     lv_obj_align(hint, LV_ALIGN_BOTTOM_LEFT, 0, 0);
     lv_obj_set_hidden(s_box, true);
 }

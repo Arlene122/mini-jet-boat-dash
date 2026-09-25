@@ -6,7 +6,7 @@
 
 /* ---------- State ---------- */
 
-static lv_style_t s_text, s_arc, s_glow, s_bg, s_border;
+static lv_style_t s_text, s_arc, s_glow, s_bg, s_border, s_hi, s_dim, s_disc, s_card;
 static lv_color_t s_accent;
 static int s_mode = -1;
 
@@ -30,6 +30,12 @@ void ui_theme_init(void)
     lv_style_set_border_width(&s_border, 2);
     lv_style_set_shadow_width(&s_border, 18);
     lv_style_set_shadow_opa(&s_border, LV_OPA_40);
+    lv_style_init(&s_hi);
+    lv_style_init(&s_dim);
+    lv_style_init(&s_disc);
+    lv_style_set_bg_opa(&s_disc, LV_OPA_COVER);
+    lv_style_init(&s_card);
+    lv_style_set_bg_opa(&s_card, LV_OPA_COVER);
     ui_theme_set_mode(DASH_MODE_TOURING);
 }
 
@@ -45,10 +51,20 @@ void ui_theme_set_mode(dash_mode_t mode)
     lv_style_set_shadow_color(&s_bg, s_accent);
     lv_style_set_border_color(&s_border, s_accent);
     lv_style_set_shadow_color(&s_border, s_accent);
+    lv_style_set_arc_color(&s_hi, lv_color_mix(lv_color_white(), s_accent, LV_OPA_50));
+    lv_style_set_arc_color(&s_dim, ui_theme_accent_mix(LV_OPA_40));
+    /* Solid fills: dark low-contrast gradients band visibly */
+    lv_style_set_bg_color(&s_disc, ui_theme_accent_mix((lv_opa_t)18));
+    lv_style_set_bg_color(&s_card, lv_color_mix(s_accent, C_PANEL, (lv_opa_t)14));
     lv_obj_report_style_change(NULL);
 }
 
 lv_color_t ui_theme_accent(void) { return s_accent; }
+lv_color_t ui_theme_accent_mix(lv_opa_t amount) { return lv_color_mix(s_accent, C_BG, amount); }
+lv_style_t * ui_style_accent_hi(void) { return &s_hi; }
+lv_style_t * ui_style_accent_dim(void) { return &s_dim; }
+lv_style_t * ui_style_disc(void) { return &s_disc; }
+lv_style_t * ui_style_card(void) { return &s_card; }
 lv_style_t * ui_style_accent_text(void) { return &s_text; }
 lv_style_t * ui_style_accent_arc(void) { return &s_arc; }
 lv_style_t * ui_style_accent_glow(void) { return &s_glow; }
