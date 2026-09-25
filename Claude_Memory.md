@@ -51,4 +51,5 @@ Phase 1 cont.: once real stencil uploaded, fit layout to it; propose 2–3 UI st
 
 ## 7. Change Log
 - 2026-09-25: Planning complete, docs created.
+- 2026-09-25: Rule 2 clarified: `Chat:` = planning mode, no code/file changes.
 - 2026-09-25: Phase 1 start — repo structure, LVGL sim (native + WASM), fake ECU, placeholder screen, Pages CI.
