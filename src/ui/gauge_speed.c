@@ -84,7 +84,7 @@ void gauge_speed_create(lv_obj_t * parent)
 
     /* Soft accent glow pooling at the bottom of the disc */
     static const struct { int32_t w; lv_opa_t opa; int32_t a0, a1; } POOL[] = {
-        { 30, (lv_opa_t)14, 50, 130 }, { 14, (lv_opa_t)22, 60, 120 },
+        { 24, (lv_opa_t)8, 50, 130 }, { 10, (lv_opa_t)12, 62, 118 },
     };
     for(unsigned i = 0; i < sizeof(POOL) / sizeof(POOL[0]); i++) {
         lv_obj_t * pool = ring(g, R_DISC - 1, POOL[i].w, 0, 0);
@@ -115,8 +115,10 @@ void gauge_speed_create(lv_obj_t * parent)
     /* Rings: hairline, track, glow, core, highlight */
     lv_obj_t * hair = track(g, R_HAIR, 2, 0, 360, C_LINE);
     lv_obj_add_style(hair, ui_style_accent_dim(), LV_PART_MAIN);
-    track(g, R_CORE, 8, 0, SWEEP, C_LINE);
-    s_glow = ring(g, R_GLOW, 26, 0, SWEEP);
+    lv_obj_t * trk = track(g, R_CORE, 8, 0, SWEEP, C_LINE);
+    lv_obj_add_style(trk, ui_style_track_arc(), LV_PART_MAIN);
+    lv_obj_remove_local_style_prop(trk, LV_STYLE_ARC_COLOR, LV_PART_MAIN);
+    s_glow = ring(g, R_GLOW - 4, 16, 0, SWEEP);
     lv_obj_add_style(s_glow, ui_style_accent_glow(), LV_PART_INDICATOR);
     s_core = ring(g, R_CORE, 8, 0, SWEEP);
     lv_obj_add_style(s_core, ui_style_accent_arc(), LV_PART_INDICATOR);

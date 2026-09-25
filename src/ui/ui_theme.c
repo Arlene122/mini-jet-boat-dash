@@ -1,21 +1,21 @@
 /**
- * ui_theme — mode accents, each a family of tones:
- * Touring ice-cyan / ocean blue, Sport orange / ember, Eco green / forest.
+ * ui_theme — mode accents, each a family of muted "luxury" tones:
+ * Touring steel-blue / ice, Sport copper, Eco sage.
  */
 #include "ui_theme.h"
 
 /* ---------- State ---------- */
 
-static lv_style_t s_text, s_arc, s_glow, s_bg, s_border, s_hi, s_dim, s_disc, s_card, s_soft;
+static lv_style_t s_text, s_arc, s_glow, s_bg, s_border, s_hi, s_dim, s_disc, s_card, s_soft, s_track;
 static lv_color_t s_tone[TONE_COUNT];
 static lv_color_t s_accent;
 static int s_mode = -1;
 
 /* deep, main, light per mode */
 static const uint32_t MODE_TONES[DASH_MODE_COUNT][3] = {
-    [DASH_MODE_TOURING] = { 0x1E78C8, 0x6FE3FF, 0xD2F7FF },
-    [DASH_MODE_SPORT]   = { 0xD4460F, 0xFF8A3D, 0xFFD9B8 },
-    [DASH_MODE_ECO]     = { 0x178A45, 0x5EE08A, 0xD2F8DF },
+    [DASH_MODE_TOURING] = { 0x255B86, 0x84CFE4, 0xDDF1F6 },
+    [DASH_MODE_SPORT]   = { 0x8E4526, 0xE39A67, 0xF4DCC8 },
+    [DASH_MODE_ECO]     = { 0x2E6547, 0x86C7A0, 0xDAEEE1 },
 };
 
 /* ---------- API ---------- */
@@ -32,6 +32,7 @@ void ui_theme_init(void)
     lv_style_set_shadow_width(&s_border, 18);
     lv_style_set_shadow_opa(&s_border, LV_OPA_40);
     lv_style_init(&s_soft);
+    lv_style_init(&s_track);
     lv_style_init(&s_hi);
     lv_style_init(&s_dim);
     lv_style_init(&s_disc);
@@ -48,13 +49,16 @@ void ui_theme_set_mode(dash_mode_t mode)
     s_tone[TONE_DEEP] = lv_color_hex(MODE_TONES[mode][0]);
     s_tone[TONE_MAIN] = lv_color_hex(MODE_TONES[mode][1]);
     s_tone[TONE_LIGHT] = lv_color_hex(MODE_TONES[mode][2]);
+    s_tone[TONE_MID] = lv_color_mix(s_tone[TONE_MAIN], s_tone[TONE_DEEP], LV_OPA_50);
     s_tone[TONE_SOFT] = lv_color_mix(s_tone[TONE_MAIN], C_DIM, LV_OPA_40);
+    s_tone[TONE_TRACK] = lv_color_mix(s_tone[TONE_DEEP], C_LINE, LV_OPA_20);
     s_accent = s_tone[TONE_MAIN];
     lv_style_set_text_color(&s_soft, s_tone[TONE_SOFT]);
+    lv_style_set_arc_color(&s_track, s_tone[TONE_TRACK]);
     lv_style_set_text_color(&s_text, s_accent);
     lv_style_set_arc_color(&s_arc, s_accent);
     lv_style_set_arc_color(&s_glow, s_tone[TONE_DEEP]);
-    lv_style_set_arc_opa(&s_glow, LV_OPA_50);
+    lv_style_set_arc_opa(&s_glow, LV_OPA_30);
     lv_style_set_bg_color(&s_bg, s_accent);
     lv_style_set_shadow_color(&s_bg, s_accent);
     lv_style_set_border_color(&s_border, s_accent);
@@ -70,6 +74,7 @@ void ui_theme_set_mode(dash_mode_t mode)
 lv_color_t ui_theme_accent(void) { return s_accent; }
 lv_color_t ui_theme_tone(ui_tone_t t) { return s_tone[t]; }
 lv_style_t * ui_style_soft_text(void) { return &s_soft; }
+lv_style_t * ui_style_track_arc(void) { return &s_track; }
 lv_color_t ui_theme_accent_mix(lv_opa_t amount) { return lv_color_mix(s_accent, C_BG, amount); }
 lv_style_t * ui_style_accent_hi(void) { return &s_hi; }
 lv_style_t * ui_style_accent_dim(void) { return &s_dim; }

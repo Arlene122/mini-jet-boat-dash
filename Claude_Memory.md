@@ -24,7 +24,7 @@ _Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 - Right page zone (no box, fading hairline): swipe pages **NAV, MUSIC, LIGHTS, RIDE**.
   - NAV: push toggles **Map** (map fills panel; offline tiles later) ↔ **Marine** (compass, depth, water temp, tide chart w/ next low/high times, coords).
   - RIDE: distance hero, top speed/ride time/max RPM, fuel used, hours, error code.
-- Accent = tone family per mode (deep/main/light/soft): Touring ocean→ice-cyan, Sport ember→orange, Eco forest→green; deep for glows, light for highlights, soft for captions; amber/red only for alerts.
+- **Luxury look:** muted accents (Touring steel-blue/ice, Sport copper, Eco sage), warm white text, graphite greys, restrained glow. Tones per mode: deep/mid/main/light/soft/track (track = tinted empty tracks, mid = fill start + hairlines). Amber/red only for alerts.
 - New warning → banner over page zone (plain words + action), knob push acks; bottom icon stays lit.
 - NO ECU (no frames 1 s): engine values "--", amber NO ECU.
 - Key-on arc sweep. Refs: old HTML = layout only; owner ref dribbble 26477944 (blocked — need screenshots).
@@ -52,5 +52,6 @@ Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN 
 Owner review → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
 
 ## 9. Log
+- 09-25 Luxury pass (muted tones, less glow).
 - 09-25 Half-hex gauges + tone family.
 - 09-25 Planning; sim + CI; UI v1→v2 (ring, brackets, boxless pages); settings + saving; CAN pipeline; Nav map/marine, Music BT, Settings overlay, 4 pages.
