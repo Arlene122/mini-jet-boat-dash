@@ -1,0 +1,57 @@
+<!doctype html>
+<!-- Browser host for the LVGL simulator. The dash itself is C/LVGL compiled
+     to WebAssembly; this page only shows the canvas and the key list. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jet Boat Dash Simulator</title>
+<style>
+  :root { --bg: #0b0d10; --fg: #d7dee7; --dim: #7c8794; --key: #1d242d; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.5 system-ui, sans-serif; }
+  main { max-width: 1920px; margin: 0 auto; padding: 16px; }
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 1920 / 720;
+    background: #000; outline: none; }
+  #status { color: var(--dim); margin: 8px 0; }
+  .keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 4px 24px; margin-top: 12px; color: var(--dim); }
+  kbd { background: var(--key); color: var(--fg); border-radius: 4px; padding: 1px 6px;
+    font: 13px ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="status">Loading…</div>
+  <div class="keys">
+    <div><kbd>↑</kbd> <kbd>↓</kbd> throttle</div>
+    <div><kbd>Space</kbd> throttle off</div>
+    <div><kbd>←</kbd> <kbd>→</kbd> fuel −/+</div>
+    <div><kbd>F</kbd> <kbd>N</kbd> <kbd>R</kbd> <kbd>B</kbd> iBR fwd/neutral/rev/brake</div>
+    <div><kbd>M</kbd> riding mode</div>
+    <div><kbd>K</kbd> DESS key on/off</div>
+    <div><kbd>1</kbd>–<kbd>5</kbd> check eng/oil/overheat/low fuel/low batt</div>
+    <div><kbd>0</kbd> clear warnings</div>
+    <div><kbd>A</kbd> auto demo</div>
+    <div><kbd>S</kbd> stencil 100% / 50% / off</div>
+    <div><kbd>H</kbd> show/hide help on screen</div>
+  </div>
+</main>
+<script>
+  // Stop arrow keys / space from scrolling the page.
+  window.addEventListener('keydown', e => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+  });
+  var statusEl = document.getElementById('status');
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    setStatus: t => { statusEl.textContent = t || 'Running — click the dash, then use the keys below.'; },
+    print: t => console.log(t),
+    printErr: t => console.warn(t),
+  };
+  window.onerror = () => { statusEl.textContent = 'Error — see browser console (F12).'; };
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

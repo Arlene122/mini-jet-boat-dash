@@ -2,7 +2,7 @@
 
 ## Workflow
 1. **Read `Claude_Memory.md` first** every new chat, then `Requirements.md` as needed.
-2. Message starts with **`chat:`** → planning/discussion only. **No code.**
+2. Message starts with **`Chat:`** (any capitalisation) → **planning mode**: discuss/plan only. **Do not write, change, commit or push any code or files.**
 3. Before starting any task: ask questions until **≥97% sure** of what to do.
 4. **Be token-efficient**: short answers, no repeated content, edit only what changes.
 5. Update `Claude_Memory.md` after every meaningful decision, fix or lesson. Keep it compact + indexed.
