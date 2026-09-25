@@ -19,12 +19,12 @@ _Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 
 ## 3. UI (current)
 - Frame: glowing accent lines top/bottom with centre "pinch"; tilted gradient bars in the notch (top: trip|clock|hours; bottom: mode|warnings|DESS·source).
-- Centre: glowing 270° speed ring + digital speed, alt unit, iBR pill. Mirrored bracket gauges: RPM left (red ≥7000), FUEL right (amber ≤15%).
+- Centre: glowing 270° speed ring + digital speed, alt unit, iBR pill. Mirrored **half-hexagon** gauges (top/bottom symmetric → middle = 50 %, ticks 25/50/75): RPM left (red ≥7000), FUEL right (amber ≤15%).
 - Left zone (keep clean): status icons (log, Wi-Fi, GPS, BT) + engine temp, battery, fuel use; fading hairline edge.
 - Right page zone (no box, fading hairline): swipe pages **NAV, MUSIC, LIGHTS, RIDE**.
   - NAV: push toggles **Map** (map fills panel; offline tiles later) ↔ **Marine** (compass, depth, water temp, tide chart w/ next low/high times, coords).
   - RIDE: distance hero, top speed/ride time/max RPM, fuel used, hours, error code.
-- Accent ice-cyan, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts.
+- Accent = tone family per mode (deep/main/light/soft): Touring ocean→ice-cyan, Sport ember→orange, Eco forest→green; deep for glows, light for highlights, soft for captions; amber/red only for alerts.
 - New warning → banner over page zone (plain words + action), knob push acks; bottom icon stays lit.
 - NO ECU (no frames 1 s): engine values "--", amber NO ECU.
 - Key-on arc sweep. Refs: old HTML = layout only; owner ref dribbble 26477944 (blocked — need screenshots).
@@ -50,4 +50,5 @@ Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN 
 Owner review → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
 
 ## 9. Log
+- 09-25 Half-hex gauges + tone family.
 - 09-25 Planning; sim + CI; UI v1→v2 (ring, brackets, boxless pages); settings + saving; CAN pipeline; Nav map/marine, Music BT, Settings overlay, 4 pages.

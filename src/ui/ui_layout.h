@@ -4,7 +4,7 @@
  *
  *   ____________        [ trip | clock | hours ]        ____________
  *               \______________________________________/     <- frame line
- *   engine stats  /RPM|  ( speed ring )  |FUEL\   page card
+ *   engine stats  <RPM  ( speed ring )  FUEL>   page zone
  *   ____________/  [ mode | warnings | DESS ]  \_____________ <- frame line
  */
 #ifndef UI_LAYOUT_H
@@ -35,15 +35,15 @@
 #define GAUGE_CY       ((FRAME_TOP_IN + FRAME_BOT_IN) / 2)
 #define GAUGE_R        236          /* outer hairline + glow */
 
-/* Bracket gauges either side of the ring (left = RPM, right = mirrored FUEL):
- * top-inner, outer corner, bottom-outer, foot-inner */
-#define BRK_TOP_X      740
-#define BRK_TOP_Y      142
+/* Half-hexagon gauges either side of the ring (left = RPM, right = mirrored
+ * FUEL). Symmetric top/bottom, so the middle of the long side = 50 %.
+ * Points: top-inner, outer-top, outer-bottom, bottom-inner. */
+#define BRK_IN_X       700
 #define BRK_OUT_X      600
-#define BRK_OUT_Y      282
-#define BRK_BOT_X      630
-#define BRK_BOT_Y      (2 * GAUGE_CY - BRK_TOP_Y)   /* same reach above/below */
-#define BRK_FOOT_X     740
+#define BRK_TOP_Y      150
+#define BRK_MID_Y1     262          /* long straight side: MID_Y1..MID_Y2 */
+#define BRK_MID_Y2     (2 * GAUGE_CY - BRK_MID_Y1)
+#define BRK_BOT_Y      (2 * GAUGE_CY - BRK_TOP_Y)
 
 /* Side zones */
 #define SIDE_Y1        (FRAME_TOP_IN + 16)

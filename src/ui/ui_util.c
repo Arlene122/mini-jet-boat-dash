@@ -22,6 +22,8 @@ lv_obj_t * ui_caption(lv_obj_t * parent, const char * text)
 {
     lv_obj_t * l = ui_label(parent, &lv_font_montserrat_20, C_DIM, text);
     lv_obj_set_style_text_letter_space(l, 3, 0);
+    lv_obj_add_style(l, ui_style_soft_text(), 0);
+    lv_obj_remove_local_style_prop(l, LV_STYLE_TEXT_COLOR, 0);
     return l;
 }
 

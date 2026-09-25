@@ -37,18 +37,19 @@ static lv_obj_t * value_block(lv_obj_t * parent, int32_t x, int32_t y, lv_align_
 void cluster_brackets_create(lv_obj_t * parent)
 {
     const lv_point_t l[4] = {
-        { BRK_TOP_X, BRK_TOP_Y }, { BRK_OUT_X, BRK_OUT_Y },
-        { BRK_BOT_X, BRK_BOT_Y }, { BRK_FOOT_X, BRK_BOT_Y },
+        { BRK_IN_X, BRK_TOP_Y }, { BRK_OUT_X, BRK_MID_Y1 },
+        { BRK_OUT_X, BRK_MID_Y2 }, { BRK_IN_X, BRK_BOT_Y },
     };
     const lv_point_t r[4] = {
-        { MIRROR(BRK_TOP_X), BRK_TOP_Y }, { MIRROR(BRK_OUT_X), BRK_OUT_Y },
-        { MIRROR(BRK_BOT_X), BRK_BOT_Y }, { MIRROR(BRK_FOOT_X), BRK_BOT_Y },
+        { MIRROR(BRK_IN_X), BRK_TOP_Y }, { MIRROR(BRK_OUT_X), BRK_MID_Y1 },
+        { MIRROR(BRK_OUT_X), BRK_MID_Y2 }, { MIRROR(BRK_IN_X), BRK_BOT_Y },
     };
     s_rpm_brk = bracket_gauge_create(parent, l);
     s_fuel_brk = bracket_gauge_create(parent, r);
 
-    s_rpm = value_block(parent, BRK_OUT_X + 34, BRK_OUT_Y - 8, LV_ALIGN_TOP_LEFT, "RPM");
-    s_fuel = value_block(parent, -(BRK_OUT_X + 34), BRK_OUT_Y - 8, LV_ALIGN_TOP_RIGHT, "FUEL");
+    /* Numbers sit inside the long side, just below the 50 % tick */
+    s_rpm = value_block(parent, BRK_OUT_X + 22, GAUGE_CY + 12, LV_ALIGN_TOP_LEFT, "RPM");
+    s_fuel = value_block(parent, -(BRK_OUT_X + 22), GAUGE_CY + 12, LV_ALIGN_TOP_RIGHT, "FUEL");
 }
 
 void cluster_brackets_update(const dash_data_t * d, bool bars)

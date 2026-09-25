@@ -1,7 +1,8 @@
 /**
  * bracket_gauge — track + fill drawn as opaque, pre-mixed passes (glow,
- * core, highlight) so overlapping joints stay clean. Colour: accent,
- * amber (warn) or red (critical).
+ * core, highlight). The fill runs deep tone -> main -> light toward the
+ * head, so it reads with depth. Ticks at 25 / 50 / 75 % on the inner side.
+ * Colour family: accent tones, amber (warn) or red (critical).
  */
 #include "bracket_gauge.h"
 
@@ -11,11 +12,12 @@
 
 /* ---------- Config ---------- */
 
-#define PAD      16
+#define PAD      18
 #define W_TRACK  12
 #define W_GLOW   24
 #define W_CORE   9
 #define W_HI     3
+#define SUBSTEPS 28          /* colour steps along the fill */
 
 typedef struct {
     lv_point_precise_t p[4];   /* relative to object */
@@ -23,16 +25,46 @@ typedef struct {
     bracket_state_t st;
 } bracket_t;
 
-/* ---------- Drawing ---------- */
+/* ---------- Geometry helpers ---------- */
 
-static void seg(lv_layer_t * layer, lv_point_precise_t a, lv_point_precise_t b,
-                lv_color_t c, int32_t w)
+typedef struct { lv_point_precise_t q[4]; float seg[3]; float total; } path_t;
+
+static void path_init(path_t * pa, const bracket_t * b, const lv_area_t * a)
+{
+    pa->total = 0;
+    for(int i = 0; i < 4; i++) {           /* bottom -> top */
+        pa->q[i].x = a->x1 + b->p[3 - i].x;
+        pa->q[i].y = a->y1 + b->p[3 - i].y;
+    }
+    for(int i = 0; i < 3; i++) {
+        float dx = pa->q[i + 1].x - pa->q[i].x, dy = pa->q[i + 1].y - pa->q[i].y;
+        pa->seg[i] = sqrtf(dx * dx + dy * dy);
+        pa->total += pa->seg[i];
+    }
+}
+
+/* Point at distance d along the path (and unit direction there) */
+static lv_point_precise_t path_at(const path_t * pa, float d, float * ux, float * uy)
+{
+    for(int i = 0; i < 3; i++) {
+        if(d <= pa->seg[i] || i == 2) {
+            float t = pa->seg[i] > 0 ? LV_MIN(d, pa->seg[i]) / pa->seg[i] : 0;
+            float dx = pa->q[i + 1].x - pa->q[i].x, dy = pa->q[i + 1].y - pa->q[i].y;
+            if(ux) { *ux = dx / pa->seg[i]; *uy = dy / pa->seg[i]; }
+            lv_point_precise_t r = { pa->q[i].x + dx * t, pa->q[i].y + dy * t };
+            return r;
+        }
+        d -= pa->seg[i];
+    }
+    return pa->q[3];
+}
+
+static void seg(lv_layer_t * layer, lv_point_precise_t a, lv_point_precise_t b, lv_color_t c, int32_t w)
 {
     lv_draw_line_dsc_t ld;
     lv_draw_line_dsc_init(&ld);
     ld.color = c;
     ld.width = w;
-    ld.opa = LV_OPA_COVER;
     ld.round_start = 1;
     ld.round_end = 1;
     ld.p1 = a;
@@ -40,22 +72,18 @@ static void seg(lv_layer_t * layer, lv_point_precise_t a, lv_point_precise_t b,
     lv_draw_line(layer, &ld);
 }
 
-/* Draw the path from the foot back toward the top, up to `len` px */
-static lv_point_precise_t path(lv_layer_t * layer, const lv_point_precise_t * q, float len,
-                               lv_color_t c, int32_t w)
+/* Draw from 0 to len along the path, colour from c0 to c1 */
+static void stroke(lv_layer_t * layer, const path_t * pa, float len, lv_color_t c0, lv_color_t c1, int32_t w)
 {
-    lv_point_precise_t head = q[0];
-    for(int i = 0; i < 3 && len > 0; i++) {
-        float dx = q[i + 1].x - q[i].x, dy = q[i + 1].y - q[i].y;
-        float l = sqrtf(dx * dx + dy * dy);
-        float t = len >= l ? 1.0f : len / l;
-        lv_point_precise_t e = { q[i].x + dx * t, q[i].y + dy * t };
-        seg(layer, q[i], e, c, w);
-        head = e;
-        len -= l;
+    float step = len / SUBSTEPS;
+    for(int i = 0; i < SUBSTEPS && step > 0.1f; i++) {
+        lv_point_precise_t a = path_at(pa, step * i, NULL, NULL);
+        lv_point_precise_t b = path_at(pa, step * (i + 1), NULL, NULL);
+        seg(layer, a, b, lv_color_mix(c1, c0, (lv_opa_t)(255 * (i + 1) / SUBSTEPS)), w);
     }
-    return head;
 }
+
+/* ---------- Drawing ---------- */
 
 static void bracket_draw_cb(lv_event_t * e)
 {
@@ -65,25 +93,40 @@ static void bracket_draw_cb(lv_event_t * e)
 
     lv_area_t a;
     lv_obj_get_coords(obj, &a);
-    lv_point_precise_t q[4];   /* foot -> top */
-    float total = 0;
-    for(int i = 0; i < 4; i++) {
-        q[i].x = a.x1 + b->p[3 - i].x;
-        q[i].y = a.y1 + b->p[3 - i].y;
-        if(i) total += sqrtf((q[i].x - q[i - 1].x) * (q[i].x - q[i - 1].x) +
-                             (q[i].y - q[i - 1].y) * (q[i].y - q[i - 1].y));
+    path_t pa;
+    path_init(&pa, b, &a);
+
+    /* Track */
+    for(int i = 0; i < 3; i++) seg(layer, pa.q[i], pa.q[i + 1], C_LINE, W_TRACK);
+
+    /* Ticks at 25/50/75 %, on the side facing the ring */
+    float cx = (a.x1 + a.x2) / 2.0f, mx = (pa.q[1].x + pa.q[2].x) / 2.0f;
+    float inward = cx > mx ? 1.0f : -1.0f;
+    for(int k = 1; k <= 3; k++) {
+        float ux, uy;
+        lv_point_precise_t p = path_at(&pa, pa.total * k / 4.0f, &ux, &uy);
+        float nx = -uy, ny = ux;                     /* normal */
+        if(nx * inward < 0) { nx = -nx; ny = -ny; }
+        float l0 = W_TRACK / 2.0f + 4, l1 = l0 + (k == 2 ? 12 : 7);
+        lv_point_precise_t t0 = { p.x + nx * l0, p.y + ny * l0 };
+        lv_point_precise_t t1 = { p.x + nx * l1, p.y + ny * l1 };
+        seg(layer, t0, t1, k == 2 ? C_DIM : C_OFF, 2);
     }
 
-    path(layer, q, total, C_LINE, W_TRACK);
     if(b->permille <= 0) return;
 
-    lv_color_t c = b->st == BRACKET_CRIT ? C_RED : b->st == BRACKET_WARN ? C_AMBER : ui_theme_accent();
-    float len = total * b->permille / 1000.0f;
-    path(layer, q, len, lv_color_mix(c, C_BG, LV_OPA_20), W_GLOW);
-    path(layer, q, len, c, W_CORE);
-    lv_point_precise_t head = path(layer, q, len, lv_color_mix(lv_color_white(), c, LV_OPA_60), W_HI);
+    lv_color_t deep, main, light;
+    if(b->st == BRACKET_CRIT) { main = C_RED; deep = lv_color_hex(0x8A1C1E); light = lv_color_hex(0xFFC2C3); }
+    else if(b->st == BRACKET_WARN) { main = C_AMBER; deep = lv_color_hex(0x8A5A06); light = lv_color_hex(0xFFE3A8); }
+    else { main = ui_theme_tone(TONE_MAIN); deep = ui_theme_tone(TONE_DEEP); light = ui_theme_tone(TONE_LIGHT); }
+
+    float len = pa.total * b->permille / 1000.0f;
+    stroke(layer, &pa, len, lv_color_mix(deep, C_BG, LV_OPA_30), lv_color_mix(main, C_BG, LV_OPA_30), W_GLOW);
+    stroke(layer, &pa, len, deep, main, W_CORE);
+    stroke(layer, &pa, len, main, light, W_HI);
 
     /* Bright head */
+    lv_point_precise_t head = path_at(&pa, len, NULL, NULL);
     lv_draw_rect_dsc_t rd;
     lv_draw_rect_dsc_init(&rd);
     rd.radius = LV_RADIUS_CIRCLE;
