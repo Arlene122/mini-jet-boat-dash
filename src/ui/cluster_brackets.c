@@ -9,6 +9,8 @@
 #include "ui_theme.h"
 #include "ui_util.h"
 
+LV_FONT_DECLARE(font_digits_34);
+
 /* ---------- Config ---------- */
 
 #define FUEL_LOW_PCT  15
@@ -24,7 +26,7 @@ static lv_obj_t * s_rpm, * s_fuel;
 static lv_obj_t * value_block(lv_obj_t * parent, int32_t x, int32_t y, lv_align_t align,
                               const char * caption)
 {
-    lv_obj_t * v = ui_label(parent, &lv_font_montserrat_40, C_TEXT, "--");
+    lv_obj_t * v = ui_label(parent, &font_digits_34, C_TEXT, "--");   /* ~15 % below 40 */
     lv_obj_align(v, align, x, y);
     lv_obj_t * c = ui_caption(parent, caption);
     lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
