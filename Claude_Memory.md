@@ -29,6 +29,7 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 - Fake ECU writes dash_data directly for now; Phase 2 → emit CAN frames through the real decoder.
 - **UI design (agreed):** modern-minimal + subtle futuristic. Layout: top tilted bar (trip | clock | hours), left engine panel (RPM, fuel, engine temp, battery), centre gauge = big digital speed + slim 240° speed arc w/ ticks + **RPM arc inside**, knots, iBR R/N/F (BRAKE) in arc gap; right **page card** (Marine, Music, Lights, System, Trip; knob changes page); bottom tilted bar (mode | warnings | DESS·source). Bars follow stencil slants.
 - Accent = **ice-cyan**, tints by mode (Touring cyan, Sport orange, Eco green); amber/red only for alerts. Near-black bg.
+- Frame: glowing accent lines across top & bottom that dip ("pinch") in the middle; top/bottom bars sit in the notch, tilted toward centre, horizontal gradient (dark ends, accent-tinted middle) — from owner's old HTML look.
 - New warning → banner over page card (plain words + action), knob push acks; bottom-bar icon stays lit.
 - Key-on sweep of arcs covers boot. UI→boat actions via `dash_cmd.h`; controls via `ui_input.h`; zones in `ui_layout.h`.
 - Spark 2015 900 HO: modes Touring (default) + Sport (manual); ECO UNVERIFIED. Top ~48–50 mph ≈ 80 km/h → speed scale 0–105 km/h.

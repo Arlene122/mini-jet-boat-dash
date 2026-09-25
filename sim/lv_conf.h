@@ -1,6 +1,6 @@
 /* LVGL v9.6.0 config for the PC / browser simulator.
  * Based on lv_conf_template.h. Changed: enabled, CLIB stdlib, 16 ms refresh,
- * log on, Montserrat 16/20/24/28/32/40/48, LodePNG (stencil), SDL, no demos/examples. */
+ * log on, Montserrat 16/20/24/28/32/40/48, LodePNG (stencil), SDL, no demos/examples, 3 gradient stops. */
 /**
  * @file lv_conf.h
  * Configuration file for v9.6.0
@@ -287,7 +287,7 @@
 #define LV_DRAW_SW_COMPLEX 1
 
 /** Each additional stop costs (sizeof(lv_color_t) + 1) bytes. */
-#define LV_GRADIENT_MAX_STOPS 2
+#define LV_GRADIENT_MAX_STOPS 3
 
 /** Adds linear gradients at an angle, plus radial and conical gradients. */
 #define LV_USE_DRAW_SW_COMPLEX_GRADIENTS 0

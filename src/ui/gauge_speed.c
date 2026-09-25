@@ -17,7 +17,7 @@ LV_FONT_DECLARE(font_digits_160);
 #define ARC_SWEEP      240
 #define R_SPEED        GAUGE_R
 #define R_SCALE        (GAUGE_R - 12)
-#define R_RPM          172
+#define R_RPM          162
 #define W_LINE         5
 #define W_GLOW         18
 
@@ -114,22 +114,22 @@ void gauge_speed_create(lv_obj_t * parent)
 
     /* Numbers */
     s_speed = ui_label(g, &font_digits_160, C_TEXT, "0");
-    lv_obj_align(s_speed, LV_ALIGN_CENTER, 0, -28);
+    lv_obj_align(s_speed, LV_ALIGN_CENTER, 0, -26);
     lv_obj_t * unit = ui_caption(g, "KM/H");
     lv_obj_add_style(unit, ui_style_accent_text(), 0);
-    lv_obj_align(unit, LV_ALIGN_CENTER, 0, 58);
+    lv_obj_align(unit, LV_ALIGN_CENTER, 0, 56);
     s_knots = ui_label(g, &lv_font_montserrat_24, C_DIM, "");
-    lv_obj_align(s_knots, LV_ALIGN_CENTER, 0, 92);
+    lv_obj_align(s_knots, LV_ALIGN_CENTER, 0, 88);
 
     /* iBR in the bottom gap */
     static const char * letters[3] = { "R", "N", "F" };
     for(int i = 0; i < 3; i++) {
         s_ibr[i] = ui_label(g, &lv_font_montserrat_48, C_OFF, letters[i]);
-        lv_obj_align(s_ibr[i], LV_ALIGN_CENTER, (i - 1) * 72, 196);
+        lv_obj_align(s_ibr[i], LV_ALIGN_CENTER, (i - 1) * 72, 184);
     }
     s_brake = ui_label(g, &lv_font_montserrat_32, C_RED, "BRAKE");
     lv_obj_set_style_text_letter_space(s_brake, 4, 0);
-    lv_obj_align(s_brake, LV_ALIGN_CENTER, 0, 196);
+    lv_obj_align(s_brake, LV_ALIGN_CENTER, 0, 184);
     lv_obj_set_hidden(s_brake, true);
 }
 

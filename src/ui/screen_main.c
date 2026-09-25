@@ -4,6 +4,7 @@
  */
 #include "screen_main.h"
 
+#include "frame_line.h"
 #include "gauge_speed.h"
 #include "page_host.h"
 #include "panel_engine.h"
@@ -29,43 +30,46 @@ static lv_obj_t * s_trip, * s_clock, * s_hours;
 static lv_obj_t * s_mode, * s_dess, * s_source;
 static bool s_sweep;
 
+#define C_WARN_OFF lv_color_hex(0x46525F)   /* readable on the bar gradient */
+
 /* ---------- Build ---------- */
 
 static void build_top_bar(lv_obj_t * scr)
 {
-    lv_obj_t * bar = tilt_bar_create(scr, TOP_BAR_X, TOP_BAR_Y, TOP_BAR_W, TOP_BAR_H,
-                                     TOP_BAR_IN_L, TOP_BAR_IN_R, false);
-    s_trip = ui_label(bar, &lv_font_montserrat_28, C_TEXT, "");
-    lv_obj_align(s_trip, LV_ALIGN_LEFT_MID, 150, 0);
+    frame_line_create(scr, FRAME_TOP_OUT, FRAME_TOP_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
+    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, TOP_BAR_Y, BAR_W, BAR_H, BAR_TILT, true);
+    s_trip = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
+    lv_obj_align(s_trip, LV_ALIGN_LEFT_MID, 70, 0);
     s_clock = ui_label(bar, &lv_font_montserrat_40, C_TEXT, "--:--");
+    lv_obj_add_style(s_clock, ui_style_accent_text(), 0);
     lv_obj_align(s_clock, LV_ALIGN_CENTER, 0, 0);
-    s_hours = ui_label(bar, &lv_font_montserrat_28, C_TEXT, "");
-    lv_obj_align(s_hours, LV_ALIGN_RIGHT_MID, -150, 0);
+    s_hours = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
+    lv_obj_align(s_hours, LV_ALIGN_RIGHT_MID, -70, 0);
 }
 
 static void build_bottom_bar(lv_obj_t * scr)
 {
-    lv_obj_t * bar = tilt_bar_create(scr, BOT_BAR_X, BOT_BAR_Y, BOT_BAR_W, BOT_BAR_H,
-                                     BOT_BAR_IN_L, BOT_BAR_IN_R, true);
-    s_mode = ui_label(bar, &lv_font_montserrat_28, C_TEXT, "");
+    frame_line_create(scr, FRAME_BOT_OUT, FRAME_BOT_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
+    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, BOT_BAR_Y, BAR_W, BAR_H, BAR_TILT, false);
+    s_mode = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
     lv_obj_add_style(s_mode, ui_style_accent_text(), 0);
-    lv_obj_set_style_text_letter_space(s_mode, 4, 0);
-    lv_obj_align(s_mode, LV_ALIGN_LEFT_MID, 130, 0);
+    lv_obj_set_style_text_letter_space(s_mode, 3, 0);
+    lv_obj_align(s_mode, LV_ALIGN_LEFT_MID, 50, 0);
 
     lv_obj_t * row = lv_obj_create(bar);
     lv_obj_remove_style_all(row);
     lv_obj_set_size(row, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-    lv_obj_set_style_pad_column(row, 34, 0);
-    lv_obj_align(row, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_column(row, 24, 0);
+    lv_obj_align(row, LV_ALIGN_CENTER, -10, 0);
     for(size_t i = 0; i < WARN_ITEMS; i++) {
-        s_warn[i].label = ui_label(row, &lv_font_montserrat_24, C_OFF, s_warn[i].text);
+        s_warn[i].label = ui_label(row, &lv_font_montserrat_20, C_WARN_OFF, s_warn[i].text);
     }
 
     s_source = ui_label(bar, &lv_font_montserrat_20, C_DIM, "");
-    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, -110, 0);
-    s_dess = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
-    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, -190, 0);
+    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, -45, 0);
+    s_dess = ui_label(bar, &lv_font_montserrat_20, C_TEXT, "");
+    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, -100, 0);
 }
 
 lv_obj_t * screen_main_create(void)
@@ -103,7 +107,7 @@ static void update_bars(const dash_data_t * d)
 
     for(size_t i = 0; i < WARN_ITEMS; i++) {
         bool on = (d->warnings & s_warn[i].flag) != 0;
-        ui_set_text_color(s_warn[i].label, on ? (s_warn[i].red ? C_RED : C_AMBER) : C_OFF);
+        ui_set_text_color(s_warn[i].label, on ? (s_warn[i].red ? C_RED : C_AMBER) : C_WARN_OFF);
     }
 }
 

@@ -44,22 +44,22 @@ void panel_engine_create(lv_obj_t * parent)
     s_rpm_bar = ui_slim_bar(p, 300, 6, GAUGE_RPM_MAX);
     lv_obj_align(s_rpm_bar, LV_ALIGN_TOP_RIGHT, 0, 112);
 
-    row(p, 150, "FUEL", &font_digits_72, &s_fuel);
+    row(p, 140, "FUEL", &font_digits_72, &s_fuel);
     s_fuel_bar = ui_slim_bar(p, 300, 6, 100);
-    lv_obj_align(s_fuel_bar, LV_ALIGN_TOP_RIGHT, 0, 262);
+    lv_obj_align(s_fuel_bar, LV_ALIGN_TOP_RIGHT, 0, 252);
     lv_obj_t * e = ui_label(p, &lv_font_montserrat_16, C_DIM, "E");
     lv_obj_align_to(e, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 4);
     lv_obj_t * f = ui_label(p, &lv_font_montserrat_16, C_DIM, "F");
     lv_obj_align_to(f, s_fuel_bar, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 4);
 
     lv_obj_t * c = ui_caption(p, "ENGINE");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, -170, 318);
+    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, -170, 312);
     s_temp = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_temp, LV_ALIGN_TOP_RIGHT, -170, 342);
+    lv_obj_align(s_temp, LV_ALIGN_TOP_RIGHT, -170, 336);
     c = ui_caption(p, "BATTERY");
-    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, 318);
+    lv_obj_align(c, LV_ALIGN_TOP_RIGHT, 0, 312);
     s_batt = ui_label(p, &lv_font_montserrat_48, C_TEXT, "");
-    lv_obj_align(s_batt, LV_ALIGN_TOP_RIGHT, 0, 342);
+    lv_obj_align(s_batt, LV_ALIGN_TOP_RIGHT, 0, 336);
 }
 
 void panel_engine_update(const dash_data_t * d)
