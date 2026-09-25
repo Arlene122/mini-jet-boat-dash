@@ -48,7 +48,7 @@ static void ui_poll_cb(lv_timer_t * t)
 static void sweep_exec(void * var, int32_t v)
 {
     LV_UNUSED(var);
-    gauge_speed_set_arc(v * GAUGE_SPEED_MAX / 1000);
+    gauge_speed_set_arc(v * GAUGE_SPEED_MAX / 100);
     cluster_brackets_sweep(v);
 }
 

@@ -1,6 +1,6 @@
 /* LVGL v9.6.0 config for the PC / browser simulator.
  * Based on lv_conf_template.h. Changed: enabled, CLIB stdlib, 16 ms refresh,
- * log on, Montserrat 16/20/24/28/32/40/48, LodePNG (stencil), SDL, no demos/examples, 3 gradient stops. */
+ * log on, Montserrat 16/20/24/28/32/40/48, LodePNG (stencil), SDL, no demos/examples, 3 gradient stops, 8 MB image cache. */
 /**
  * @file lv_conf.h
  * Configuration file for v9.6.0
@@ -892,7 +892,7 @@
 /** Avoids repeatedly opening and decoding the same images, at the cost of RAM.
  *  Of little benefit with only the built-in image formats.
  */
-#define LV_CACHE_DEF_SIZE 0
+#define LV_CACHE_DEF_SIZE (8 * 1024 * 1024)   /* keep decoded stencil PNG (sim) */
 
 /** Avoids repeatedly reading image headers, at the cost of RAM.
  *  Of little benefit with only the built-in image formats.

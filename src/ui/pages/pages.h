@@ -32,7 +32,7 @@ extern const ui_page_t page_settings;
 #define PAGE_PAD        30    /* gap from the zone's hairline */
 #define PAGE_CONTENT_W  345
 #define PAGE_CONTENT_H  390
-#define LIST_ROW_H      46
+#define LIST_ROW_H      42
 
 /* Small caption above a value; returns the value label */
 lv_obj_t * page_stat(lv_obj_t * parent, int32_t x, int32_t y, const char * caption,

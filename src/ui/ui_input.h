@@ -9,8 +9,8 @@ typedef enum {
     UI_IN_NEXT = 0,   /* knob clockwise  -> next page */
     UI_IN_PREV,       /* knob anticlockwise -> previous page */
     UI_IN_SELECT,     /* knob push / 5-way centre */
-    UI_IN_BACK,       /* back: close settings / first page */
-    UI_IN_SETTINGS,   /* knob long press or the Settings button */
+    UI_IN_BACK,       /* 5-way left: close settings / first page */
+    UI_IN_SETTINGS,   /* knob long press: open / close settings */
     UI_IN_UP,         /* 5-way up */
     UI_IN_DOWN,       /* 5-way down */
 } ui_input_t;

@@ -67,8 +67,8 @@ void cluster_brackets_update(const dash_data_t * d, bool bars)
         }
         return;
     }
-    int rpm = (d->rpm + 25) / 50 * 50;
-    bool red = rpm >= GAUGE_RPM_RED;
+    int rpm = (d->rpm + 25) / 50 * 50;                /* steady digits */
+    bool red = d->rpm >= GAUGE_RPM_RED;
     ui_label_printf(s_rpm, "%d", rpm);
     ui_set_text_color(s_rpm, red ? C_RED : C_TEXT);
 
@@ -78,7 +78,7 @@ void cluster_brackets_update(const dash_data_t * d, bool bars)
     ui_set_text_color(s_fuel, low ? C_AMBER : C_TEXT);
 
     if(bars) {
-        bracket_gauge_set(s_rpm_brk, rpm * 1000 / GAUGE_RPM_MAX, red ? BRACKET_CRIT : BRACKET_NORMAL);
+        bracket_gauge_set(s_rpm_brk, d->rpm * 1000 / GAUGE_RPM_MAX, red ? BRACKET_CRIT : BRACKET_NORMAL);
         bracket_gauge_set(s_fuel_brk, fuel * 10, low ? BRACKET_WARN : BRACKET_NORMAL);
     }
 }

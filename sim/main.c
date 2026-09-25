@@ -37,13 +37,12 @@ static int key_watch(void * user, SDL_Event * e)
     if(e->type != SDL_KEYDOWN || e->key.repeat) return 0;
     int key = e->key.keysym.sym;
     if(fake_ecu_key(key) || sim_overlay_key(key)) return 0;
-    switch(key) {   /* dash controls: knob + 5-way + Settings button */
+    switch(key) {   /* dash controls: knob + 5-way */
         case SDLK_RIGHT:     ui_input(UI_IN_NEXT); break;
         case SDLK_LEFT:      ui_input(UI_IN_PREV); break;
         case SDLK_RETURN:    s_enter_down_ms = SDL_GetTicks(); break;
         case SDLK_BACKSPACE:
         case SDLK_ESCAPE:    ui_input(UI_IN_BACK); break;
-        case SDLK_o:         ui_input(UI_IN_SETTINGS); break;
         case SDLK_UP:        ui_input(UI_IN_UP); break;
         case SDLK_DOWN:      ui_input(UI_IN_DOWN); break;
         default: break;

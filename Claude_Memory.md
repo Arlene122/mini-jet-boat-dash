@@ -6,7 +6,7 @@ _Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 
 ## 1. Status
 - Phase 1–2 (sim) well advanced. Live sim: https://arlene122.github.io/mini-jet-boat-dash/ (deploys from `main`).
-- Work branch `claude/compassionate-mendel-bp8lbr`; PR #4 merged on owner request.
+- Work branch `claude/compassionate-mendel-bp8lbr`; PR #4 merged; PR #5 = smoothness + settings exit.
 - UI **not locked**; lock before reveal animation.
 
 ## 2. Decisions
@@ -14,7 +14,7 @@ _Updated 2026-09-25 · compact, indexed; detail lives in code/README._
 - ESP32-P4 + LVGL v9.6 (C). Audio on separate ESP32 (BT). Sim = browser WASM (dev tool only; dash UI is C/LVGL).
 - Speed from GPS; engine via CAN. Units km/h/kn/mph (distance follows), °C/°F, 12/24 h.
 - Phone: auto-reconnect to last phone; pairing from Music page (not Settings).
-- Settings = set-and-forget, **not a swipe page**: opens in page zone via knob long-press **and** a dedicated button.
+- Settings = set-and-forget, **not a swipe page**: knob hold opens/closes (no dedicated button); CLOSE row + "hold knob to close" hint; 5-way left = back.
 - Requirements.md changes only when owner says (Rule 6).
 
 ## 3. UI (current)
@@ -40,11 +40,13 @@ Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN 
 ## 6. Lessons
 - HTML dash too laggy; Pi boot too slow; never assume BRP CAN IDs.
 - LVGL 9.6: use `lv_obj_set_hidden/…` (flag APIs deprecated); read sizes via constants, not `lv_obj_get_width` at create time.
+- Sim perf: stencil PNG re-decoded every frame when LV_CACHE_DEF_SIZE=0 → 70 ms/frame; 8 MB cache → 4 ms. Measure with LV_USE_SYSMON/PERF_MONITOR (temp build).
+- Smooth gauges: arcs in 0.1 units (1 km/h steps look jumpy); number hysteresis ±0.8 stops flicker.
 - Dark low-contrast gradients band → use solid fills; glow = opaque pre-mixed passes (no alpha overlap beads).
 - Sandbox blocks Emscripten SDL2 zip → `EMCC_LOCAL_PORTS=sdl2=<SDL git clone>`; blocks dribbble/manualslib.
 
 ## 7. Open
-5 light names · 4 button jobs (1 = Settings, 1 = map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows untested.
+5 light names · 4 button jobs (map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows untested.
 
 ## 8. Next
 Owner review → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
