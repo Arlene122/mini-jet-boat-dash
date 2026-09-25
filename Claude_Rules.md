@@ -6,6 +6,7 @@
 3. Before starting any task: ask questions until **≥97% sure** of what to do.
 4. **Be token-efficient**: short answers, no repeated content, edit only what changes.
 5. Update `Claude_Memory.md` after every meaningful decision, fix or lesson. Keep it compact + indexed.
+6. **Only update `Requirements.md` when the owner explicitly says so.** Record proposals/decisions in `Claude_Memory.md` instead.
 
 ## Coding
 - User has **no coding experience**: give exact, step-by-step Windows instructions (what to click/type, where files go).

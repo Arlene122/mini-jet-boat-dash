@@ -55,6 +55,7 @@ Sim keys: ←→ knob pages, Enter knob push/ack, ↑↓ 5-way, Esc home · W/S 
 - Claude sandbox blocks Emscripten's SDL2 zip download → local test: `EMCC_LOCAL_PORTS=sdl2=<git clone of SDL release-2.30.9>`. CI unaffected.
 
 ## 5. Open Items
+**Proposed, awaiting owner OK:** left zone = status/context zone (connection icons, engine stats, lights on, next-turn card when navigating) · pages cut to 4 (Nav/Marine, Music, Lights, Ride=trip+engine) · Settings off the carousel (knob long-press/button) with sections incl. **Connections** (Bluetooth phone pairing via audio board, Wi-Fi hotspot) · map: mini map on Nav page + optional full map mode via a button; offline map tiles on SD (future).
 Stencil is eye-traced from image (exact SVG would be better) · 5 light names (all-round white, LED strips, basic lights — owner to confirm) · end of owner msg "eventually add om…" cut off · day/night theme · ride summary on key-off · warning tone · 4 button functions · knob display · wake signal · fuel sender wiring · dash opening size · P4 board model.
 
 ## 6. Next Step
@@ -63,6 +64,7 @@ Owner reviews UI v2 → tweak. Then: splash + reveal anim, day/night, ride summa
 ## 7. Change Log
 - 2026-09-25: Planning complete, docs created.
 - 2026-09-25: Rule 2 clarified: `Chat:` = planning mode, no code/file changes.
+- 2026-09-25: Rule 6: Requirements.md only on owner's say-so.
 - 2026-09-25: Page zone boxless + page redesign; brackets balanced.
 - 2026-09-25: UI v2 (ring speedo, brackets, restyled pages), Settings page + saving, CAN placeholder pipeline + ECU timeout.
 - 2026-09-25: UI v1 design: centre gauge + RPM inner arc, engine panel, 5-page card, warning banner, mode tint, sweep; stencil traced.
