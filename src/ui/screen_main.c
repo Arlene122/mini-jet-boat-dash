@@ -5,6 +5,7 @@
 #include "screen_main.h"
 
 #include "frame_line.h"
+#include "glass_bg.h"
 #include "cluster_brackets.h"
 #include "gauge_speed.h"
 #include "page_host.h"
@@ -34,29 +35,36 @@ static bool s_sweep;
 
 #define C_WARN_OFF lv_color_hex(0x46525F)   /* readable on the bar gradient */
 
+/* Glass: slimmer bars with a stronger perspective toward the centre */
+static int32_t bar_h(void) { return ui_theme_glass() ? 40 : BAR_H; }
+static int32_t bar_tilt(void) { return ui_theme_glass() ? 70 : BAR_TILT; }
+static int fsz(int classic, int glass) { return ui_theme_glass() ? glass : classic; }
+
 /* ---------- Build ---------- */
 
 static void build_top_bar(lv_obj_t * scr)
 {
     frame_line_create(scr, FRAME_TOP_OUT, FRAME_TOP_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
-    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, TOP_BAR_Y, BAR_W, BAR_H, BAR_TILT, true);
-    s_trip = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
-    lv_obj_align(s_trip, LV_ALIGN_LEFT_MID, 70, 0);
-    s_clock = ui_label(bar, &lv_font_montserrat_40, C_TEXT, "--:--");
+    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, FRAME_TOP_IN - bar_h() - 8, BAR_W, bar_h(), bar_tilt(), true);
+    int32_t in = bar_tilt() + 30;
+    s_trip = ui_label(bar, UI_FONT(fsz(24, 20)), C_TEXT, "");
+    lv_obj_align(s_trip, LV_ALIGN_LEFT_MID, LV_MAX(70, in), 0);
+    s_clock = ui_label(bar, UI_FONT(fsz(40, 32)), C_TEXT, "--:--");
     lv_obj_add_style(s_clock, ui_style_accent_text(), 0);
     lv_obj_align(s_clock, LV_ALIGN_CENTER, 0, 0);
-    s_hours = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
-    lv_obj_align(s_hours, LV_ALIGN_RIGHT_MID, -70, 0);
+    s_hours = ui_label(bar, UI_FONT(fsz(24, 20)), C_TEXT, "");
+    lv_obj_align(s_hours, LV_ALIGN_RIGHT_MID, -LV_MAX(70, in), 0);
 }
 
 static void build_bottom_bar(lv_obj_t * scr)
 {
     frame_line_create(scr, FRAME_BOT_OUT, FRAME_BOT_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
-    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, BOT_BAR_Y, BAR_W, BAR_H, BAR_TILT, false);
-    s_mode = ui_label(bar, &lv_font_montserrat_24, C_TEXT, "");
+    lv_obj_t * bar = tilt_bar_create(scr, BAR_X, BOT_BAR_Y, BAR_W, bar_h(), bar_tilt(), false);
+    int32_t in = ui_theme_glass() ? bar_tilt() + 20 : 50;
+    s_mode = ui_label(bar, UI_FONT(fsz(24, 20)), C_TEXT, "");
     lv_obj_add_style(s_mode, ui_style_accent_text(), 0);
     lv_obj_set_style_text_letter_space(s_mode, 3, 0);
-    lv_obj_align(s_mode, LV_ALIGN_LEFT_MID, 50, 0);
+    lv_obj_align(s_mode, LV_ALIGN_LEFT_MID, in, 0);
 
     lv_obj_t * row = lv_obj_create(bar);
     lv_obj_remove_style_all(row);
@@ -65,22 +73,23 @@ static void build_bottom_bar(lv_obj_t * scr)
     lv_obj_set_style_pad_column(row, 24, 0);
     lv_obj_align(row, LV_ALIGN_CENTER, -10, 0);
     for(size_t i = 0; i < WARN_ITEMS; i++) {
-        s_warn[i].label = ui_label(row, &lv_font_montserrat_20, C_WARN_OFF, s_warn[i].text);
+        s_warn[i].label = ui_label(row, UI_FONT(fsz(20, 16)), C_WARN_OFF, s_warn[i].text);
     }
 
-    s_source = ui_label(bar, &lv_font_montserrat_20, C_DIM, "");
-    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, -30, 0);
-    s_dess = ui_label(bar, &lv_font_montserrat_20, C_TEXT, "");
-    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, -135, 0);
+    s_source = ui_label(bar, UI_FONT(fsz(20, 16)), C_DIM, "");
+    lv_obj_align(s_source, LV_ALIGN_RIGHT_MID, ui_theme_glass() ? -in : -30, 0);
+    s_dess = ui_label(bar, UI_FONT(fsz(20, 16)), C_TEXT, "");
+    lv_obj_align(s_dess, LV_ALIGN_RIGHT_MID, ui_theme_glass() ? -in - 80 : -135, 0);
 }
 
 lv_obj_t * screen_main_create(void)
 {
     lv_obj_t * scr = lv_obj_create(NULL);
     lv_obj_set_scrollable(scr, false);
-    lv_obj_set_style_bg_color(scr, C_BG, 0);
+    lv_obj_set_style_bg_color(scr, ui_theme_glass() ? lv_color_hex(PAL_NAVY_950) : C_BG, 0);
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
 
+    if(ui_theme_glass()) glass_bg_create(scr);   /* backdrop first */
     build_top_bar(scr);
     build_bottom_bar(scr);
     panel_engine_create(scr);

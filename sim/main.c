@@ -15,6 +15,7 @@
 #include "../src/ui/ui.h"
 #include "../src/ui/ui_input.h"
 #include "fake_ecu.h"
+#include "sim_fonts.h"
 #include "sim_overlay.h"
 
 /* ---------- Keyboard ---------- */
@@ -36,7 +37,7 @@ static int key_watch(void * user, SDL_Event * e)
     }
     if(e->type != SDL_KEYDOWN || e->key.repeat) return 0;
     int key = e->key.keysym.sym;
-    if(fake_ecu_key(key) || sim_overlay_key(key)) return 0;
+    if(fake_ecu_key(key) || sim_overlay_key(key) || sim_fonts_key(key)) return 0;
     switch(key) {   /* dash controls: knob + 5-way */
         case SDLK_RIGHT:     ui_input(UI_IN_NEXT); break;
         case SDLK_LEFT:      ui_input(UI_IN_PREV); break;

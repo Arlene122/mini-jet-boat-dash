@@ -9,7 +9,7 @@
 /* ---------- Storage format ---------- */
 
 #define SETTINGS_MAGIC    0x4A424431u   /* "JBD1" */
-#define SETTINGS_VERSION  1
+#define SETTINGS_VERSION  2
 
 typedef struct {
     uint32_t magic;
@@ -19,7 +19,7 @@ typedef struct {
 } settings_blob_t;
 
 static const settings_t DEFAULTS = {
-    .speed_unit = UNIT_KMH, .temp_f = 0, .clock_12h = 0, .brightness = 100, .logging = 1,
+    .speed_unit = UNIT_KMH, .temp_f = 0, .clock_12h = 0, .brightness = 100, .logging = 1, .theme = 0,
 };
 
 /* ---------- State ---------- */
@@ -40,7 +40,7 @@ static uint16_t checksum(const settings_t * s)
 static bool valid(const settings_t * s)
 {
     return s->speed_unit < UNIT_SPEED_COUNT && s->temp_f <= 1 && s->clock_12h <= 1 &&
-           s->brightness >= 10 && s->brightness <= 100 && s->logging <= 1;
+           s->brightness >= 10 && s->brightness <= 100 && s->logging <= 1 && s->theme <= 1;
 }
 
 /* ---------- API ---------- */

@@ -13,14 +13,15 @@
 /* ---------- Rows ---------- */
 
 typedef enum {
-    ROW_SPEED = 0, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_WIFI, ROW_FUEL, ROW_ABOUT, ROW_CLOSE, ROW_COUNT
+    ROW_THEME = 0, ROW_SPEED, ROW_TEMP, ROW_CLOCK, ROW_BRIGHT, ROW_LOG, ROW_WIFI, ROW_FUEL, ROW_ABOUT,
+    ROW_CLOSE, ROW_COUNT
 } row_t;
 static const char * ROW_NAME[ROW_COUNT] = {
-    "SPEED UNIT", "TEMPERATURE", "CLOCK", "BRIGHTNESS", "RIDE LOGGING", "WI-FI HOTSPOT",
+    "THEME", "SPEED UNIT", "TEMPERATURE", "CLOCK", "BRIGHTNESS", "RIDE LOGGING", "WI-FI HOTSPOT",
     "FUEL CALIBRATION", "SOFTWARE", "CLOSE SETTINGS",
 };
 
-#define ROW_STEP (LIST_ROW_H + 1)
+#define ROW_STEP LIST_ROW_H
 #define SW_VERSION "v0.4 sim"
 
 static lv_obj_t * s_row[ROW_COUNT], * s_val[ROW_COUNT], * s_mark;
@@ -33,6 +34,7 @@ static void show(void)
 {
     const settings_t * s = settings_get();
     static const char * speed[] = { "km/h", "knots", "mph" };
+    ui_label_printf(s_val[ROW_THEME], "%s", s->theme ? "Glass" : "Classic");
     ui_label_printf(s_val[ROW_SPEED], "%s", speed[s->speed_unit]);
     ui_label_printf(s_val[ROW_TEMP], "%s", s->temp_f ? "°F" : "°C");
     ui_label_printf(s_val[ROW_CLOCK], "%s", s->clock_12h ? "12 h" : "24 h");
@@ -53,6 +55,7 @@ static void change(void)
 {
     settings_t s = *settings_get();
     switch(s_focus) {
+        case ROW_THEME:  s.theme ^= 1; break;
         case ROW_SPEED:  s.speed_unit = (s.speed_unit + 1) % UNIT_SPEED_COUNT; break;
         case ROW_TEMP:   s.temp_f ^= 1; break;
         case ROW_CLOCK:  s.clock_12h ^= 1; break;
@@ -67,6 +70,7 @@ static void change(void)
 
 static void create(lv_obj_t * p)
 {
+    s_seq = UINT32_MAX;
     for(int i = 0; i < ROW_COUNT; i++) {
         s_val[i] = page_list_row(p, i * ROW_STEP, ROW_NAME[i], &s_row[i]);
     }
