@@ -43,7 +43,7 @@ add_custom_command(
     COMMENT "Embedding stencil image")
 
 # ---------- Glass theme images (assets/glass -> C) ----------
-set(GLASS_IMAGES bg_tile ripple plate_l plate_r disc)
+set(GLASS_IMAGES bg plate_l plate_r disc)
 set(GLASS_C)
 foreach(img ${GLASS_IMAGES})
     add_custom_command(

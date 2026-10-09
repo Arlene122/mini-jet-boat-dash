@@ -53,7 +53,7 @@ typedef enum { UI_THEME_CLASSIC = 0, UI_THEME_GLASS, UI_THEME_COUNT } ui_theme_i
 void ui_theme_init(void);
 void ui_theme_set_mode(dash_mode_t mode);
 
-/* Classic = original look. Glass = frosted panels, ripple, new font,
+/* Classic = original look. Glass = frosted panels, carbon fibre, new font,
  * blue-teal palette, half glow, slim perspective bars, big gear. */
 void ui_theme_select(ui_theme_id_t id);
 bool ui_theme_glass(void);

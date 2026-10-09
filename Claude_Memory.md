@@ -16,7 +16,7 @@ _Updated 2026-10-09 · compact, indexed; detail lives in code/README._
 - Phone: auto-reconnect to last phone; pairing from Music page (not Settings).
 - Settings = set-and-forget, **not a swipe page**: knob hold opens/closes (no dedicated button); CLOSE row + "hold knob to close" hint; 5-way left = back.
 - Requirements.md changes only when owner says (Rule 6).
-- **Two themes**, Settings → THEME (saved): **Classic** (Montserrat, graphite, muted mode tones) and **Glass** (luxury, expensive on P4). Glass = frosted plates/disc, slow low-contrast ripple bg, glow ×0.5 (`ui_glow()`), slimmer bars (40 vs 52 px) with stronger perspective, geometric font, big iBR gear.
+- **Two themes**, Settings → THEME (saved): **Classic** (Montserrat, graphite, muted mode tones) and **Glass** (luxury, expensive on P4). Glass = frosted plates/disc, static subtle carbon-fibre bg fading out toward edges (owner: water ripple = ugly, rejected), glow ×0.5 (`ui_glow()`), slimmer bars (40 vs 52 px) with stronger perspective, geometric font, big iBR gear.
 
 ## 3. UI (current)
 - Frame: glowing accent lines top/bottom with centre "pinch"; tilted gradient bars in the notch (top: trip|clock|hours; bottom: mode|warnings|DESS·source).
@@ -51,12 +51,13 @@ Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN 
 - Sandbox blocks Emscripten SDL2 zip → `EMCC_LOCAL_PORTS=sdl2=<SDL git clone>`; blocks dribbble/manualslib.
 
 ## 7. Open
-5 light names · 4 button jobs (map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows/Glass untested (full-screen ripple repaint ~4.5 fps is the main cost; convert PNGs to native format on P4; ripple can be frozen).
+5 light names · 4 button jobs (map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows/Glass untested (bg is static now; convert PNGs to RGB565 on P4).
 
 ## 8. Next
 Owner picks font + theme → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
 
 ## 9. Log
+- 10-09 Glass: ripple → carbon fibre.
 - 10-09 Glass theme + toggle, palette tokens, Outfit/Sora/Inter test, big iBR gear.
 - 09-25 Luxury pass (muted tones, less glow).
 - 09-25 Half-hex gauges + tone family.

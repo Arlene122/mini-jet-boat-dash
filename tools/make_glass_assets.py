@@ -2,8 +2,8 @@
 """Pre-render the Glass theme images (no live blur on the ESP32-P4).
 
 Writes assets/glass/:
-  bg_tile.png    64x720   deep-water gradient, dithered (tiled across)
-  ripple.png     480x240  seamless, low-contrast caustics (tiled, drifts slowly)
+  bg.png         1920x720 navy gradient + subtle carbon-fibre twill that
+                 fades out toward the screen edges (static, opaque)
   plate_l.png    frosted panel behind the engine stats
   plate_r.png    frosted panel behind the page zone
   disc.png       frosted round plate behind the speed ring
@@ -42,25 +42,38 @@ def bg_full():
     return np.repeat(col[:, None, :], W, axis=1)  # (H,W,3)
 
 
-def ripple_tile(tw=480, th=240):
-    x = np.arange(tw)[None, :] / tw
-    y = np.arange(th)[:, None] / th
-    v = (np.sin(2 * np.pi * (3 * x + 2 * y)) + np.sin(2 * np.pi * (-2 * x + 3 * y) + 1.3)
-         + np.sin(2 * np.pi * (5 * x - 1 * y) + 2.1) * 0.6 + np.sin(2 * np.pi * (1 * x + 4 * y) + 0.4) * 0.6)
-    c = np.clip(1 - np.abs(v) / 1.2, 0, 1) ** 5     # thin bright caustic lines
-    a = (c * 46).astype(np.uint8)                   # low contrast
-    rgba = np.zeros((th, tw, 4), np.uint8)
-    rgba[..., :3] = AQUA_200
-    rgba[..., 3] = a
-    return rgba
+# Carbon fibre: 2/2 twill of 6 px tows, each with a soft sheen across it.
+CARBON_TOW = 6
+CARBON_AMP = 15.0          # max brightness swing (0-255) at full strength
+CARBON_TINT = (0x5A, 0x6A, 0x80)   # cool graphite highlight
 
 
-def composite(bg, tile):
-    th, tw = tile.shape[:2]
-    reps = (H // th + 1, W // tw + 1, 1)
-    t = np.tile(tile, reps)[:H, :W]
-    a = t[..., 3:4] / 255.0
-    return bg * (1 - a) + t[..., :3] * a
+def carbon_pattern():
+    y, x = np.mgrid[0:H, 0:W]
+    i, j = x // CARBON_TOW, y // CARBON_TOW
+    u = (x % CARBON_TOW + 0.5) / CARBON_TOW
+    v = (y % CARBON_TOW + 0.5) / CARBON_TOW
+    horiz = ((i + j) % 4) < 2
+    across = np.where(horiz, v, u)
+    sheen = np.sin(np.pi * across) ** 1.5                # bright tow middle, dark gaps
+    gain = np.where(horiz, 1.0, 0.55)                    # light catches one direction more
+    return sheen * gain - 0.35                           # roughly zero-mean
+
+
+def carbon_fade():
+    """1 near the speedometer, 0 at the outer screen (soft ellipse)."""
+    y, x = np.mgrid[0:H, 0:W]
+    d = np.hypot((x - GAUGE_CX) / (W * 0.46), (y - GAUGE_CY) / (H * 0.62))
+    t = np.clip((d - 0.35) / 0.65, 0, 1)
+    return (1 - t * t * (3 - 2 * t))                     # smoothstep falloff
+
+
+def bg_carbon():
+    bg = bg_full()
+    k = (carbon_pattern() * carbon_fade() * CARBON_AMP)[..., None]
+    tint = np.array(CARBON_TINT, float) / max(CARBON_TINT)
+    out = bg + k * tint + rng.uniform(-0.6, 0.6, bg.shape)   # dither
+    return np.clip(out, 0, 255)
 
 
 def frost(region, tint=0.07):
@@ -108,12 +121,8 @@ def disc(full):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    col = gradient_column()
-    tile = np.repeat(col[:, None, :], 64, axis=1) + rng.uniform(-0.6, 0.6, (H, 64, 3))   # dither
-    Image.fromarray(np.clip(tile, 0, 255).astype(np.uint8), "RGB").save(os.path.join(OUT, "bg_tile.png"), optimize=True)
-    rt = ripple_tile()
-    Image.fromarray(rt, "RGBA").save(os.path.join(OUT, "ripple.png"), optimize=True)
-    full = composite(bg_full(), rt)
+    full = bg_carbon()
+    Image.fromarray(full.astype(np.uint8), "RGB").save(os.path.join(OUT, "bg.png"), optimize=True)
     plate(full, ENGINE_X - PLATE_GROW, SIDE_Y1, PAGE_W + PLATE_GROW, SIDE_H + PLATE_DROP).save(os.path.join(OUT, "plate_l.png"), optimize=True)
     plate(full, PAGE_X, SIDE_Y1, PAGE_W + PLATE_GROW, SIDE_H + PLATE_DROP).save(os.path.join(OUT, "plate_r.png"), optimize=True)
     disc(full).save(os.path.join(OUT, "disc.png"), optimize=True)
