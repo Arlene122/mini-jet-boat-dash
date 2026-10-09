@@ -1,11 +1,12 @@
 /**
- * ui — owns the screen, routes control inputs, runs the key-on sweep and
+ * ui — owns the screen, routes control inputs, runs the key-on animation and
  * pushes dash_data changes into the widgets.
  */
 #include "ui.h"
 
 #include "cluster_brackets.h"
 #include "gauge_speed.h"
+#include "key_on.h"
 #include "lvgl.h"
 #include "page_host.h"
 #include "screen_main.h"
@@ -19,7 +20,7 @@
 /* ---------- Config ---------- */
 
 #define UI_POLL_MS   20    /* how often we look for new data */
-#define SWEEP_MS     900   /* each direction of the key-on sweep */
+#define SWEEP_MS     650   /* each direction of the key-on sweep */
 
 /* ---------- State ---------- */
 
@@ -86,10 +87,19 @@ static void start_sweep(void)
     lv_anim_set_values(&a, 0, 1000);
     lv_anim_set_duration(&a, SWEEP_MS);
     lv_anim_set_reverse_duration(&a, SWEEP_MS);
-    lv_anim_set_delay(&a, 200);
+    lv_anim_set_delay(&a, KEY_ON_SWEEP_DELAY_MS);
     lv_anim_set_path_cb(&a, lv_anim_path_ease_in_out);
     lv_anim_set_completed_cb(&a, sweep_done);
     lv_anim_start(&a);
+}
+
+void ui_key_on(void)
+{
+    lv_anim_delete(NULL, sweep_exec);
+    rebuild();
+    key_on_play();
+    start_sweep();
+    s_last_seq = UINT32_MAX;
 }
 
 /* ---------- Input ---------- */
@@ -116,8 +126,6 @@ void ui_init(void)
     ui_theme_init();
     s_theme = settings_get()->theme;
     ui_theme_select((ui_theme_id_t)s_theme);
-    lv_obj_t * scr = screen_main_create();
-    lv_screen_load(scr);
-    start_sweep();
+    ui_key_on();
     lv_timer_create(ui_poll_cb, UI_POLL_MS, NULL);
 }

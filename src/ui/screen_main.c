@@ -6,6 +6,7 @@
 
 #include "frame_line.h"
 #include "glass_bg.h"
+#include "key_on.h"
 #include "cluster_brackets.h"
 #include "gauge_speed.h"
 #include "page_host.h"
@@ -44,8 +45,9 @@ static int fsz(int classic, int glass) { return ui_theme_glass() ? glass : class
 
 static void build_top_bar(lv_obj_t * scr)
 {
-    frame_line_create(scr, FRAME_TOP_OUT, FRAME_TOP_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
+    key_on_add(KO_FRAME, frame_line_create(scr, FRAME_TOP_OUT, FRAME_TOP_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE));
     lv_obj_t * bar = tilt_bar_create(scr, BAR_X, FRAME_TOP_IN - bar_h() - 8, BAR_W, bar_h(), bar_tilt(), true);
+    key_on_add(KO_BAR, bar);
     int32_t in = bar_tilt() + 30;
     s_trip = ui_label(bar, UI_FONT(fsz(24, 20)), C_TEXT, "");
     lv_obj_align(s_trip, LV_ALIGN_LEFT_MID, LV_MAX(70, in), 0);
@@ -58,8 +60,9 @@ static void build_top_bar(lv_obj_t * scr)
 
 static void build_bottom_bar(lv_obj_t * scr)
 {
-    frame_line_create(scr, FRAME_BOT_OUT, FRAME_BOT_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE);
+    key_on_add(KO_FRAME, frame_line_create(scr, FRAME_BOT_OUT, FRAME_BOT_IN, NOTCH_X1, NOTCH_X2, NOTCH_CURVE));
     lv_obj_t * bar = tilt_bar_create(scr, BAR_X, BOT_BAR_Y, BAR_W, bar_h(), bar_tilt(), false);
+    key_on_add(KO_BAR, bar);
     int32_t in = ui_theme_glass() ? bar_tilt() + 20 : 50;
     s_mode = ui_label(bar, UI_FONT(fsz(24, 20)), C_TEXT, "");
     lv_obj_add_style(s_mode, ui_style_accent_text(), 0);
@@ -89,14 +92,23 @@ lv_obj_t * screen_main_create(void)
     lv_obj_set_style_bg_color(scr, ui_theme_glass() ? lv_color_hex(PAL_NAVY_950) : C_BG, 0);
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
 
+    key_on_reset();
     if(ui_theme_glass()) glass_bg_create(scr);   /* backdrop first */
     build_top_bar(scr);
     build_bottom_bar(scr);
+    uint32_t n = lv_obj_get_child_count(scr);
     panel_engine_create(scr);
+    key_on_add_from(KO_SIDE, scr, n);
+    n = lv_obj_get_child_count(scr);
     cluster_brackets_create(scr);
+    key_on_add_from(KO_BRACKETS, scr, n);
+    n = lv_obj_get_child_count(scr);
     gauge_speed_create(scr);
+    key_on_add_from(KO_GAUGE, scr, n);
+    n = lv_obj_get_child_count(scr);
     page_host_create(scr);
-    warn_banner_create(scr);
+    key_on_add_from(KO_SIDE, scr, n);
+    warn_banner_create(scr);                     /* never animated: warnings always show */
     return scr;
 }
 

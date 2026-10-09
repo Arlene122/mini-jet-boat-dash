@@ -31,7 +31,7 @@ _Updated 2026-10-09 · compact, indexed; detail lives in code/README._
 - **Glass specifics:** palette tokens `PAL_*` in ui_theme.h (navy 950/900/800 → ocean 700–400 → teal 700–400 → aqua 300–100, foam); mode tones Touring ocean, Sport aqua, Eco teal. iBR gear pill R N F under speed: F aqua, N foam, R periwinkle, BRAKE red; slide + pop anim on change. Warnings orange/red only.
 - **Fonts:** Classic Montserrat (never Orbitron). Glass default **Outfit** (OFL); Sora/Inter candidates — sim key G compares. Change: `python3 tools/make_fonts.py <outfit|sora|inter>` (tabular digits patched in).
 - Glass images pre-rendered: `tools/make_glass_assets.py` → assets/glass/*.png → C via `tools/png_to_c.py` at build. No live blur.
-- Key-on arc sweep. Refs: old HTML = layout only; owner ref dribbble 26477944 (blocked — need screenshots).
+- **Key-on animation** (`key_on.c`, ~2 s, on screen-on; sim key I replays): frame lines trace out from centre with tip sparks → ring scales up (overshoot) → bars unfold → RPM/FUEL slide out from ring → side panels glide in → arc sweep. Warn banner never animated. Not the splash (splash still to do). Refs: old HTML = layout only; owner ref dribbble 26477944 (blocked — need screenshots).
 
 ## 4. Architecture
 - `src/dash_data` (UI's only input; `dash_task` = CAN decode, ECU timeout, derived warnings, trip) · `src/can` (**placeholder protocol, UNVERIFIED**) · `src/settings` (versioned blob) · `src/ui` (+`pages/`, zones in `ui_layout.h`) · `sim/`.
@@ -54,9 +54,10 @@ Wisecoco 12.3" 1920×720 HDMI (owned) · ESP32-P4 + LT8912B (to buy) · USB-CAN 
 5 light names · 4 button jobs (map mode?) · wake signal · fuel sender · dash opening size · P4 board model · stencil is eye-traced (SVG better) · owner msg "add om…" cut off · P4 perf of glows/Glass untested (bg is static now; convert PNGs to RGB565 on P4).
 
 ## 8. Next
-Owner picks font + theme → lock UI → reveal/splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
+Owner picks font + theme → lock UI → splash animation → ride-log format → CAN replay (candump) → buy P4 + USB-CAN.
 
 ## 9. Log
+- 10-09 Key-on animation; sim page cache-bust + version.
 - 10-09 Glass: ripple → carbon fibre.
 - 10-09 Glass theme + toggle, palette tokens, Outfit/Sora/Inter test, big iBR gear.
 - 09-25 Luxury pass (muted tones, less glow).
