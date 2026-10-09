@@ -46,9 +46,9 @@ static void show_focus(void)
 static void create(lv_obj_t * p)
 {
     /* Phone row */
-    s_bt_icon = ui_label(p, &lv_font_montserrat_20, C_DIM, LV_SYMBOL_BLUETOOTH);
+    s_bt_icon = ui_label(p, UI_FONT(20), C_DIM, LV_SYMBOL_BLUETOOTH);
     lv_obj_set_pos(s_bt_icon, 0, ROW_Y + 8);
-    s_phone = ui_label(p, &lv_font_montserrat_20, C_TEXT, "");
+    s_phone = ui_label(p, UI_FONT(20), C_TEXT, "");
     lv_label_set_long_mode(s_phone, LV_LABEL_LONG_MODE_DOTS);
     lv_obj_set_width(s_phone, PAGE_CONTENT_W - 28);
     lv_obj_set_pos(s_phone, 28, ROW_Y + 8);
@@ -57,7 +57,7 @@ static void create(lv_obj_t * p)
     lv_obj_set_style_bg_color(s_pair, C_BG, 0);
     lv_obj_set_style_bg_opa(s_pair, LV_OPA_COVER, 0);
     lv_obj_set_style_pad_left(s_pair, 10, 0);
-    lv_obj_set_style_text_font(s_pair, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_pair, UI_FONT(16), 0);
     lv_obj_align(s_pair, LV_ALIGN_TOP_RIGHT, 0, ROW_Y + 11);
     ui_fade_line(p, 0, ROW_Y + 40, PAGE_CONTENT_W, false, LV_OPA_30);
 
@@ -67,24 +67,24 @@ static void create(lv_obj_t * p)
     lv_obj_add_style(art, ui_style_disc(), 0);
     lv_obj_set_style_border_color(art, C_LINE, 0);
     lv_obj_set_style_border_width(art, 1, 0);
-    lv_obj_t * note = ui_label(art, &lv_font_montserrat_48, C_TEXT, LV_SYMBOL_AUDIO);
+    lv_obj_t * note = ui_label(art, UI_FONT(48), C_TEXT, LV_SYMBOL_AUDIO);
     lv_obj_add_style(note, ui_style_accent_text(), 0);
     lv_obj_center(note);
 
     int32_t tx = ART + 20, tw = PAGE_CONTENT_W - tx;
-    s_title = ui_label(p, &lv_font_montserrat_28, C_TEXT, "");
+    s_title = ui_label(p, UI_FONT(28), C_TEXT, "");
     lv_label_set_long_mode(s_title, LV_LABEL_LONG_MODE_WRAP);
     lv_obj_set_width(s_title, tw);
     lv_obj_set_pos(s_title, tx, ART_Y + 18);
-    s_artist = ui_label(p, &lv_font_montserrat_20, C_DIM, "");
+    s_artist = ui_label(p, UI_FONT(20), C_DIM, "");
     lv_label_set_long_mode(s_artist, LV_LABEL_LONG_MODE_DOTS);
     lv_obj_set_width(s_artist, tw);
 
     s_bar = ui_slim_bar(p, PAGE_CONTENT_W, 3, 1000);
     lv_obj_set_pos(s_bar, 0, BAR_Y);
-    s_pos = ui_label(p, &lv_font_montserrat_16, C_DIM, "");
+    s_pos = ui_label(p, UI_FONT(16), C_DIM, "");
     lv_obj_set_pos(s_pos, 0, BAR_Y + 12);
-    s_len = ui_label(p, &lv_font_montserrat_16, C_DIM, "");
+    s_len = ui_label(p, UI_FONT(16), C_DIM, "");
     lv_obj_align(s_len, LV_ALIGN_TOP_RIGHT, 0, BAR_Y + 12);
 
     /* Controls */
@@ -94,7 +94,7 @@ static void create(lv_obj_t * p)
     lv_obj_set_style_shadow_width(s_play_ring, 0, 0);
     static const char * sym[3] = { LV_SYMBOL_PREV, LV_SYMBOL_PLAY, LV_SYMBOL_NEXT };
     for(int i = 0; i < 3; i++) {
-        s_btn[i] = ui_label(p, &lv_font_montserrat_32, C_TEXT, sym[i]);
+        s_btn[i] = ui_label(p, UI_FONT(32), C_TEXT, sym[i]);
         lv_obj_align(s_btn[i], LV_ALIGN_TOP_MID, BTN_X[i] - PAGE_CONTENT_W / 2, BTN_Y - 16);
     }
     show_focus();

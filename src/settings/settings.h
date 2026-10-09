@@ -17,6 +17,7 @@ typedef struct {
     uint8_t clock_12h;      /* 0 = 24 h, 1 = 12 h */
     uint8_t brightness;     /* 10..100 % */
     uint8_t logging;        /* ride logging on/off */
+    uint8_t theme;          /* 0 = Classic, 1 = Glass */
 } settings_t;
 
 void settings_init(void);                 /* load, or defaults if none/corrupt */

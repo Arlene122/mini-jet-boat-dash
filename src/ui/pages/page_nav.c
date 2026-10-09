@@ -63,16 +63,16 @@ static void create_map(lv_obj_t * v)
     lv_obj_set_style_line_color(boat, ui_theme_accent(), 0);
     lv_obj_add_style(boat, ui_style_accent_text(), 0);
     lv_obj_align(boat, LV_ALIGN_CENTER, 0, 30);
-    lv_obj_t * n = ui_label(map, &lv_font_montserrat_16, C_DIM, "N " LV_SYMBOL_UP);
+    lv_obj_t * n = ui_label(map, UI_FONT(16), C_DIM, "N " LV_SYMBOL_UP);
     lv_obj_align(n, LV_ALIGN_TOP_RIGHT, -14, 12);
     lv_obj_t * note = ui_caption(map, "OFFLINE MAPS - COMING LATER");
-    lv_obj_set_style_text_font(note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(note, UI_FONT(16), 0);
     lv_obj_set_style_text_letter_space(note, 1, 0);
     lv_obj_align(note, LV_ALIGN_BOTTOM_MID, 0, -12);
 
-    s_map_head = ui_label(v, &lv_font_montserrat_24, C_TEXT, "");
+    s_map_head = ui_label(v, UI_FONT(24), C_TEXT, "");
     lv_obj_set_pos(s_map_head, 0, MAP_H + 14);
-    s_map_pos = ui_label(v, &lv_font_montserrat_16, C_DIM, "");
+    s_map_pos = ui_label(v, UI_FONT(16), C_DIM, "");
     lv_obj_align(s_map_pos, LV_ALIGN_TOP_RIGHT, 0, MAP_H + 20);
 }
 
@@ -106,34 +106,34 @@ static void create_marine(lv_obj_t * v)
     lv_obj_set_style_arc_rounded(s_needle, true, LV_PART_MAIN);
     lv_obj_add_style(s_needle, ui_style_accent_arc(), LV_PART_MAIN);
     lv_obj_set_style_arc_opa(s_needle, LV_OPA_TRANSP, LV_PART_INDICATOR);
-    lv_obj_t * n = ui_label(c, &lv_font_montserrat_16, C_DIM, "N");
+    lv_obj_t * n = ui_label(c, UI_FONT(16), C_DIM, "N");
     lv_obj_align(n, LV_ALIGN_TOP_MID, 0, 14);
-    s_heading = ui_label(c, &lv_font_montserrat_28, C_TEXT, "--");
+    s_heading = ui_label(c, UI_FONT(28), C_TEXT, "--");
     lv_obj_align(s_heading, LV_ALIGN_CENTER, 0, 2);
     s_dir = ui_caption(c, "");
-    lv_obj_set_style_text_font(s_dir, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_dir, UI_FONT(16), 0);
     lv_obj_add_style(s_dir, ui_style_accent_text(), 0);
     lv_obj_align(s_dir, LV_ALIGN_CENTER, 0, 30);
 
     /* Depth (hero) + water temp */
-    s_depth = page_stat(v, 170, 4, "DEPTH", &lv_font_montserrat_40);
-    s_water = page_stat(v, 170, 80, "WATER", &lv_font_montserrat_24);
+    s_depth = page_stat(v, 170, 4, "DEPTH", UI_FONT(40));
+    s_water = page_stat(v, 170, 80, "WATER", UI_FONT(24));
 
     /* Tide */
     ui_fade_line(v, 0, 156, PAGE_CONTENT_W, false, LV_OPA_30);
     lv_obj_t * tc = ui_caption(v, "TIDE");
-    lv_obj_set_style_text_font(tc, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(tc, UI_FONT(16), 0);
     lv_obj_set_pos(tc, 0, 170);
-    s_tide_v = ui_label(v, &lv_font_montserrat_20, C_TEXT, "");
+    s_tide_v = ui_label(v, UI_FONT(20), C_TEXT, "");
     lv_obj_align(s_tide_v, LV_ALIGN_TOP_RIGHT, 0, 166);
     s_tide = tide_chart_create(v, 0, 194, PAGE_CONTENT_W, 118);
 
     /* Position */
     ui_fade_line(v, 0, 322, PAGE_CONTENT_W, false, LV_OPA_30);
-    lv_obj_t * pin = ui_label(v, &lv_font_montserrat_16, C_DIM, LV_SYMBOL_GPS);
+    lv_obj_t * pin = ui_label(v, UI_FONT(16), C_DIM, LV_SYMBOL_GPS);
     lv_obj_add_style(pin, ui_style_accent_text(), 0);
     lv_obj_set_pos(pin, 0, 336);
-    s_pos = ui_label(v, &lv_font_montserrat_20, C_TEXT, "");
+    s_pos = ui_label(v, UI_FONT(20), C_TEXT, "");
     lv_obj_set_pos(s_pos, 28, 333);
 }
 
@@ -148,12 +148,12 @@ static void create(lv_obj_t * p)
 
     /* View switch hint: MAP | MARINE  (push to switch) */
     s_tab_map = ui_caption(p, "MAP");
-    lv_obj_set_style_text_font(s_tab_map, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_tab_map, UI_FONT(16), 0);
     lv_obj_align(s_tab_map, LV_ALIGN_BOTTOM_LEFT, 0, 0);
     s_tab_marine = ui_caption(p, "MARINE");
-    lv_obj_set_style_text_font(s_tab_marine, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_tab_marine, UI_FONT(16), 0);
     lv_obj_align(s_tab_marine, LV_ALIGN_BOTTOM_LEFT, 64, 0);
-    lv_obj_t * hint = ui_label(p, &lv_font_montserrat_16, C_OFF, "PUSH TO SWITCH");
+    lv_obj_t * hint = ui_label(p, UI_FONT(16), C_OFF, "PUSH TO SWITCH");
     lv_obj_align(hint, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
     show_view();
 }

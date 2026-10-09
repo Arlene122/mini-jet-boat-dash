@@ -42,6 +42,19 @@ add_custom_command(
     DEPENDS ${REPO_ROOT}/tools/stencil_to_c.py ${STENCIL_FILES}
     COMMENT "Embedding stencil image")
 
+# ---------- Glass theme images (assets/glass -> C) ----------
+set(GLASS_IMAGES bg_tile ripple plate_l plate_r disc)
+set(GLASS_C)
+foreach(img ${GLASS_IMAGES})
+    add_custom_command(
+        OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/glass_${img}.c
+        COMMAND ${Python3_EXECUTABLE} ${REPO_ROOT}/tools/png_to_c.py
+                ${REPO_ROOT}/assets/glass/${img}.png glass_${img} ${CMAKE_CURRENT_BINARY_DIR}/glass_${img}.c
+        DEPENDS ${REPO_ROOT}/tools/png_to_c.py ${REPO_ROOT}/assets/glass/${img}.png
+        COMMENT "Embedding glass ${img}")
+    list(APPEND GLASS_C ${CMAKE_CURRENT_BINARY_DIR}/glass_${img}.c)
+endforeach()
+
 # ---------- Dash + simulator ----------
 file(GLOB_RECURSE DASH_SOURCES CONFIGURE_DEPENDS ${REPO_ROOT}/src/*.c)
 add_executable(dash_sim
@@ -50,6 +63,8 @@ add_executable(dash_sim
     sim_overlay.c
     sim_platform.c
     ${DASH_SOURCES}
+    sim_fonts.c
+    ${GLASS_C}
     ${CMAKE_CURRENT_BINARY_DIR}/stencil_img.c)
 target_link_libraries(dash_sim PRIVATE lvgl)
 target_compile_options(dash_sim PRIVATE -Wall -Wextra -Wno-unused-parameter)

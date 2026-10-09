@@ -25,14 +25,32 @@
 
 static uint32_t s_last_seq = UINT32_MAX;
 static uint32_t s_settings_seq = UINT32_MAX;
+static int s_theme = -1;
+
+/* ---------- Theme rebuild ---------- */
+
+/* Build a fresh screen in the new theme and drop the old one. Pages keep
+ * their position (and Settings stays open) via page_host's state. */
+static void rebuild(void)
+{
+    lv_obj_t * old = lv_screen_active();
+    lv_obj_t * scr = screen_main_create();
+    lv_screen_load(scr);
+    if(old && old != scr) lv_obj_delete(old);
+}
 
 /* ---------- Refresh ---------- */
 
 static void ui_poll_cb(lv_timer_t * t)
 {
     LV_UNUSED(t);
-    if(settings_seq() != s_settings_seq) {   /* units / brightness changed */
+    if(settings_seq() != s_settings_seq) {   /* units / brightness / theme changed */
         s_settings_seq = settings_seq();
+        if(settings_get()->theme != s_theme) {
+            s_theme = settings_get()->theme;
+            ui_theme_select((ui_theme_id_t)s_theme);
+            rebuild();
+        }
         gauge_speed_apply_settings();
         dash_cmd_brightness(settings_get()->brightness);
         s_last_seq = UINT32_MAX;
@@ -96,6 +114,8 @@ void ui_input(ui_input_t in)
 void ui_init(void)
 {
     ui_theme_init();
+    s_theme = settings_get()->theme;
+    ui_theme_select((ui_theme_id_t)s_theme);
     lv_obj_t * scr = screen_main_create();
     lv_screen_load(scr);
     start_sweep();

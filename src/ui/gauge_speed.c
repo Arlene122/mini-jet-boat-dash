@@ -10,7 +10,6 @@
 #include "ui_util.h"
 #include "../settings/settings.h"
 
-LV_FONT_DECLARE(font_digits_160);
 
 /* ---------- Geometry ---------- */
 
@@ -30,6 +29,13 @@ static lv_obj_t * s_glow, * s_core, * s_hi, * s_scale;
 static lv_obj_t * s_speed, * s_unit, * s_alt;
 static lv_obj_t * s_pill, * s_slot[3], * s_brake;
 static int s_shown_speed = -1;   /* number hysteresis: no flicker between two values */
+
+/* Glass: large gear indicator — distinct colour per state, slide + pop on change */
+#define GEAR_SLOT_W  76
+#define GEAR_H       72
+static lv_obj_t * s_gear, * s_gear_hl, * s_gear_lbl[3], * s_gear_brake;
+static int s_gear_state = -1;            /* 0 R, 1 N, 2 F, 3 BRAKE */
+static const uint32_t GEAR_COL[3] = { IBR_COL_REV, IBR_COL_NEUTRAL, IBR_COL_FWD };
 
 /* ---------- Helpers ---------- */
 
@@ -60,6 +66,86 @@ static lv_obj_t * track(lv_obj_t * parent, int32_t r, int32_t w, int32_t a0, int
     return a;
 }
 
+static void anim_x_cb(void * o, int32_t v) { lv_obj_set_x(o, v); }
+static void anim_scale_cb(void * o, int32_t v) { lv_obj_set_style_transform_scale(o, v, 0); }
+
+static void pop(lv_obj_t * o)
+{
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, o);
+    lv_anim_set_exec_cb(&a, anim_scale_cb);
+    lv_anim_set_values(&a, 256, 330);
+    lv_anim_set_duration(&a, 130);
+    lv_anim_set_reverse_duration(&a, 170);
+    lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+    lv_anim_start(&a);
+}
+
+static void gear_create(lv_obj_t * g)
+{
+    s_gear = ui_box(g, 0, 0, 3 * GEAR_SLOT_W + 16, GEAR_H);
+    lv_obj_align(s_gear, LV_ALIGN_CENTER, 0, 150);
+    lv_obj_set_style_radius(s_gear, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_color(s_gear, lv_color_hex(PAL_NAVY_900), 0);
+    lv_obj_set_style_bg_opa(s_gear, LV_OPA_70, 0);
+    lv_obj_set_style_border_color(s_gear, lv_color_hex(PAL_OCEAN_700), 0);
+    lv_obj_set_style_border_width(s_gear, 1, 0);
+
+    s_gear_hl = ui_box(s_gear, 8, 8, GEAR_SLOT_W, GEAR_H - 16);
+    lv_obj_set_style_radius(s_gear_hl, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_opa(s_gear_hl, LV_OPA_COVER, 0);
+
+    static const char * letters[3] = { "R", "N", "F" };
+    for(int i = 0; i < 3; i++) {
+        lv_obj_t * l = ui_label(s_gear, UI_FONT(48), C_DIM, letters[i]);
+        lv_obj_set_style_transform_pivot_x(l, LV_PCT(50), 0);
+        lv_obj_set_style_transform_pivot_y(l, LV_PCT(50), 0);
+        lv_obj_align(l, LV_ALIGN_LEFT_MID, 8 + i * GEAR_SLOT_W + GEAR_SLOT_W / 2 - 15, 0);
+        s_gear_lbl[i] = l;
+    }
+    s_gear_brake = ui_label(s_gear, UI_FONT(32), lv_color_hex(IBR_COL_BRAKE), "BRAKE");
+    lv_obj_set_style_text_letter_space(s_gear_brake, 6, 0);
+    lv_obj_set_style_transform_pivot_x(s_gear_brake, LV_PCT(50), 0);
+    lv_obj_set_style_transform_pivot_y(s_gear_brake, LV_PCT(50), 0);
+    lv_obj_center(s_gear_brake);
+    lv_obj_set_hidden(s_gear_brake, true);
+    s_gear_state = -1;
+}
+
+static void gear_update(dash_ibr_t ibr)
+{
+    int st = ibr == DASH_IBR_BRAKE ? 3 : ibr == DASH_IBR_REVERSE ? 0 : ibr == DASH_IBR_FORWARD ? 2 : 1;
+    if(st == s_gear_state) return;
+    int prev = s_gear_state;
+    s_gear_state = st;
+    bool brake = st == 3;
+
+    lv_obj_set_hidden(s_gear_brake, !brake);
+    lv_obj_set_hidden(s_gear_hl, brake);
+    for(int i = 0; i < 3; i++) {
+        lv_obj_set_hidden(s_gear_lbl[i], brake);
+        ui_set_text_color(s_gear_lbl[i], i == st ? lv_color_hex(PAL_NAVY_950) : C_DIM);
+    }
+    lv_obj_set_style_border_color(s_gear, brake ? lv_color_hex(IBR_COL_BRAKE) : lv_color_hex(PAL_OCEAN_700), 0);
+    if(brake) { pop(s_gear_brake); return; }
+
+    lv_obj_set_style_bg_color(s_gear_hl, lv_color_hex(GEAR_COL[st]), 0);
+    int32_t to = 8 + st * GEAR_SLOT_W;
+    if(prev < 0 || prev == 3) lv_obj_set_x(s_gear_hl, to);
+    else {
+        lv_anim_t a;
+        lv_anim_init(&a);
+        lv_anim_set_var(&a, s_gear_hl);
+        lv_anim_set_exec_cb(&a, anim_x_cb);
+        lv_anim_set_values(&a, lv_obj_get_x(s_gear_hl), to);
+        lv_anim_set_duration(&a, 180);
+        lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+        lv_anim_start(&a);
+    }
+    if(prev >= 0) pop(s_gear_lbl[st]);
+}
+
 static void pill_slot_style(lv_obj_t * slot, bool active)
 {
     lv_obj_set_style_bg_opa(slot, active ? LV_OPA_COVER : LV_OPA_TRANSP, 0);
@@ -74,12 +160,15 @@ void gauge_speed_create(lv_obj_t * parent)
                           GAUGE_R * 2 + 16, GAUGE_R * 2 + 16);
 
     /* Disc */
-    lv_obj_t * disc = ui_box(g, 0, 0, R_DISC * 2, R_DISC * 2);
-    lv_obj_align(disc, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_radius(disc, LV_RADIUS_CIRCLE, 0);
-    lv_obj_add_style(disc, ui_style_disc(), 0);
-    lv_obj_set_style_border_color(disc, C_LINE, 0);
-    lv_obj_set_style_border_width(disc, 1, 0);
+    s_shown_speed = -1;
+    if(!ui_theme_glass()) {            /* Glass: frosted disc image (glass_bg) */
+        lv_obj_t * disc = ui_box(g, 0, 0, R_DISC * 2, R_DISC * 2);
+        lv_obj_align(disc, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_set_style_radius(disc, LV_RADIUS_CIRCLE, 0);
+        lv_obj_add_style(disc, ui_style_disc(), 0);
+        lv_obj_set_style_border_color(disc, C_LINE, 0);
+        lv_obj_set_style_border_width(disc, 1, 0);
+    }
     track(g, R_INNER, 1, 0, 360, C_LINE);
 
     /* Soft accent glow pooling at the bottom of the disc */
@@ -90,7 +179,7 @@ void gauge_speed_create(lv_obj_t * parent)
         lv_obj_t * pool = ring(g, R_DISC - 1, POOL[i].w, 0, 0);
         lv_arc_set_rotation(pool, 0);
         lv_arc_set_bg_angles(pool, POOL[i].a0, POOL[i].a1);
-        lv_obj_set_style_arc_opa(pool, POOL[i].opa, LV_PART_MAIN);
+        lv_obj_set_style_arc_opa(pool, (lv_opa_t)ui_glow(POOL[i].opa), LV_PART_MAIN);
         lv_obj_set_style_arc_rounded(pool, true, LV_PART_MAIN);
         lv_obj_add_style(pool, ui_style_accent_arc(), LV_PART_MAIN);
     }
@@ -118,7 +207,7 @@ void gauge_speed_create(lv_obj_t * parent)
     lv_obj_t * trk = track(g, R_CORE, 8, 0, SWEEP, C_LINE);
     lv_obj_add_style(trk, ui_style_track_arc(), LV_PART_MAIN);
     lv_obj_remove_local_style_prop(trk, LV_STYLE_ARC_COLOR, LV_PART_MAIN);
-    s_glow = ring(g, R_GLOW - 4, 16, 0, SWEEP);
+    s_glow = ring(g, R_GLOW - 4, ui_glow(16), 0, SWEEP);
     lv_obj_add_style(s_glow, ui_style_accent_glow(), LV_PART_INDICATOR);
     s_core = ring(g, R_CORE, 8, 0, SWEEP);
     lv_obj_add_style(s_core, ui_style_accent_arc(), LV_PART_INDICATOR);
@@ -126,15 +215,21 @@ void gauge_speed_create(lv_obj_t * parent)
     lv_obj_add_style(s_hi, ui_style_accent_hi(), LV_PART_INDICATOR);
 
     /* Numbers */
-    s_speed = ui_label(g, &font_digits_160, C_TEXT, "0");
+    s_speed = ui_label(g, UI_DIGITS(160), C_TEXT, "0");
     lv_obj_align(s_speed, LV_ALIGN_CENTER, 0, -24);
     s_unit = ui_caption(g, "");
     lv_obj_add_style(s_unit, ui_style_accent_text(), 0);
     lv_obj_align(s_unit, LV_ALIGN_CENTER, 0, 62);
-    s_alt = ui_label(g, &lv_font_montserrat_20, C_DIM, "");
+    s_alt = ui_label(g, UI_FONT(20), C_DIM, "");
     lv_obj_align(s_alt, LV_ALIGN_CENTER, 0, 94);
 
-    /* iBR pill: R N F, active slot filled with accent */
+    if(ui_theme_glass()) {
+        gear_create(g);
+        gauge_speed_apply_settings();
+        return;
+    }
+
+    /* Classic iBR pill: R N F, active slot filled with accent */
     s_pill = ui_box(g, 0, 0, 174, 46);
     lv_obj_align(s_pill, LV_ALIGN_CENTER, 0, 158);
     lv_obj_set_style_radius(s_pill, LV_RADIUS_CIRCLE, 0);
@@ -147,12 +242,12 @@ void gauge_speed_create(lv_obj_t * parent)
         lv_obj_t * s = ui_box(s_pill, 5 + i * 56, 5, 52, 36);
         lv_obj_set_style_radius(s, LV_RADIUS_CIRCLE, 0);
         lv_obj_add_style(s, ui_style_accent_bg(), 0);
-        lv_obj_t * l = ui_label(s, &lv_font_montserrat_24, C_DIM, letters[i]);
+        lv_obj_t * l = ui_label(s, UI_FONT(24), C_DIM, letters[i]);
         lv_obj_center(l);
         s_slot[i] = s;
         pill_slot_style(s, false);
     }
-    s_brake = ui_label(s_pill, &lv_font_montserrat_20, C_RED, "BRAKE");
+    s_brake = ui_label(s_pill, UI_FONT(20), C_RED, "BRAKE");
     lv_obj_set_style_text_letter_space(s_brake, 4, 0);
     lv_obj_center(s_brake);
     lv_obj_set_hidden(s_brake, true);
@@ -193,6 +288,10 @@ void gauge_speed_update(const dash_data_t * d, bool arc)
                     settings_speed_alt_unit());
     if(arc) gauge_speed_set_arc((int32_t)(d->speed_kmh * 10.0f + 0.5f));
 
+    if(ui_theme_glass()) {
+        gear_update(d->ibr);
+        return;
+    }
     bool brake = d->ibr == DASH_IBR_BRAKE;
     int active = d->ibr == DASH_IBR_REVERSE ? 0 : d->ibr == DASH_IBR_FORWARD ? 2 : 1;
     for(int i = 0; i < 3; i++) {

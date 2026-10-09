@@ -50,6 +50,7 @@ static void show(uint8_t lights)
 
 static void create(lv_obj_t * p)
 {
+    s_shown = 0xFF;
     lv_obj_t * hull = lv_line_create(p);
     lv_line_set_points(hull, HULL, sizeof(HULL) / sizeof(HULL[0]));
     lv_obj_set_style_line_color(hull, C_DIM, 0);
@@ -62,13 +63,13 @@ static void create(lv_obj_t * p)
         lv_obj_t * o = ui_box(p, HULL_X + l->x, l->y, l->w, l->h);
         lv_obj_set_style_radius(o, LV_RADIUS_CIRCLE, 0);
         lv_obj_add_style(o, ui_style_accent_bg(), 0);
-        lv_obj_set_style_shadow_width(o, 24, 0);
+        lv_obj_set_style_shadow_width(o, ui_glow(24), 0);
         s_light[i] = o;
     }
     s_name = ui_caption(p, "");
-    lv_obj_set_style_text_font(s_name, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_name, UI_FONT(16), 0);
     lv_obj_align(s_name, LV_ALIGN_BOTTOM_LEFT, 0, -8);
-    s_state = ui_label(p, &lv_font_montserrat_24, C_DIM, "");
+    s_state = ui_label(p, UI_FONT(24), C_DIM, "");
     lv_obj_add_style(s_state, ui_style_accent_text(), 0);
     lv_obj_align(s_state, LV_ALIGN_BOTTOM_RIGHT, 0, -4);
 }

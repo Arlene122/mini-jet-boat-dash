@@ -122,7 +122,9 @@ static void bracket_draw_cb(lv_event_t * e)
     else { main = ui_theme_tone(TONE_MAIN); deep = ui_theme_tone(TONE_MID); light = ui_theme_tone(TONE_LIGHT); }
 
     float len = pa.total * b->permille / 1000.0f;
-    stroke(layer, &pa, len, lv_color_mix(deep, C_BG, LV_OPA_20), lv_color_mix(main, C_BG, LV_OPA_20), W_GLOW);
+    lv_opa_t gm = (lv_opa_t)ui_glow(LV_OPA_20);
+    if(ui_glow(W_GLOW) > W_CORE)
+        stroke(layer, &pa, len, lv_color_mix(deep, C_BG, gm), lv_color_mix(main, C_BG, gm), ui_glow(W_GLOW));
     stroke(layer, &pa, len, deep, main, W_CORE);
     stroke(layer, &pa, len, main, light, W_HI);
 

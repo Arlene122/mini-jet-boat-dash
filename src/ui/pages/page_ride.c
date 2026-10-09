@@ -8,7 +8,6 @@
 #include "../ui_util.h"
 #include "../../settings/settings.h"
 
-LV_FONT_DECLARE(font_digits_72);
 
 static lv_obj_t * s_dist, * s_unit, * s_top, * s_top_u, * s_time, * s_rpm;
 static lv_obj_t * s_fuel, * s_hours, * s_code;
@@ -16,10 +15,10 @@ static lv_obj_t * s_fuel, * s_hours, * s_code;
 static lv_obj_t * mini(lv_obj_t * p, int32_t x, const char * cap)
 {
     lv_obj_t * c = ui_caption(p, cap);
-    lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(c, UI_FONT(16), 0);
     lv_obj_set_style_text_letter_space(c, 1, 0);
     lv_obj_set_pos(c, x, 136);
-    lv_obj_t * v = ui_label(p, &lv_font_montserrat_28, C_TEXT, "--");
+    lv_obj_t * v = ui_label(p, UI_FONT(28), C_TEXT, "--");
     lv_obj_set_pos(v, x, 158);
     return v;
 }
@@ -27,16 +26,16 @@ static lv_obj_t * mini(lv_obj_t * p, int32_t x, const char * cap)
 static void create(lv_obj_t * p)
 {
     lv_obj_t * c = ui_caption(p, "DISTANCE");
-    lv_obj_set_style_text_font(c, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(c, UI_FONT(16), 0);
     lv_obj_set_pos(c, 0, 0);
-    s_dist = ui_label(p, &font_digits_72, C_TEXT, "0.0");
+    s_dist = ui_label(p, UI_DIGITS(72), C_TEXT, "0.0");
     lv_obj_set_pos(s_dist, 0, 20);
     s_unit = ui_caption(p, "");
     lv_obj_add_style(s_unit, ui_style_accent_text(), 0);
 
     ui_fade_line(p, 0, 118, PAGE_CONTENT_W, false, LV_OPA_30);
     s_top = mini(p, 0, "TOP SPEED");
-    s_top_u = ui_label(p, &lv_font_montserrat_16, C_DIM, "");
+    s_top_u = ui_label(p, UI_FONT(16), C_DIM, "");
     s_time = mini(p, 128, "RIDE TIME");
     s_rpm = mini(p, 245, "MAX RPM");
     ui_fade_line(p, 114, 136, 60, true, LV_OPA_40);

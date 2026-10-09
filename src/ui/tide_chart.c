@@ -115,8 +115,8 @@ lv_obj_t * tide_chart_create(lv_obj_t * parent, int32_t x, int32_t y, int32_t w,
     tide_t * t = lv_malloc_zeroed(sizeof(*t));
     t->now_min = -2;
     t->w = w;
-    t->lbl_hi = ui_label(obj, &lv_font_montserrat_16, C_TEXT, "");
-    t->lbl_lo = ui_label(obj, &lv_font_montserrat_16, C_DIM, "");
+    t->lbl_hi = ui_label(obj, UI_FONT(16), C_TEXT, "");
+    t->lbl_lo = ui_label(obj, UI_FONT(16), C_DIM, "");
     lv_obj_set_user_data(obj, t);
     lv_obj_add_event_cb(obj, tide_draw_cb, LV_EVENT_DRAW_MAIN, NULL);
     lv_obj_add_event_cb(obj, tide_delete_cb, LV_EVENT_DELETE, NULL);

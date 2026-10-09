@@ -33,6 +33,8 @@ static const dash_data_t * s_last;
 
 /* ---------- Helpers ---------- */
 
+static void open_settings(void);
+
 static void show_page(int idx)
 {
     if(s_in_settings) {                  /* leaving settings */
@@ -60,7 +62,7 @@ void page_host_create(lv_obj_t * parent)
     s_zone = ui_box(parent, PAGE_X, SIDE_Y1, PAGE_W, SIDE_H);
     ui_fade_line(s_zone, 0, 0, SIDE_H, true, LV_OPA_60);
 
-    s_title = ui_label(s_zone, &lv_font_montserrat_20, C_TEXT, "");
+    s_title = ui_label(s_zone, UI_FONT(20), C_TEXT, "");
     lv_obj_add_style(s_title, ui_style_accent_text(), 0);
     lv_obj_set_style_text_letter_space(s_title, 5, 0);
     lv_obj_set_pos(s_title, PAD_L, 14);
@@ -71,7 +73,7 @@ void page_host_create(lv_obj_t * parent)
     lv_obj_align(dots, LV_ALIGN_TOP_RIGHT, 0, 22);
     s_dots = dots;
     s_hint = ui_caption(s_zone, "HOLD KNOB TO CLOSE");
-    lv_obj_set_style_text_font(s_hint, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_hint, UI_FONT(16), 0);
     lv_obj_set_style_text_letter_space(s_hint, 1, 0);
     lv_obj_align(s_hint, LV_ALIGN_TOP_RIGHT, 0, 16);
     lv_obj_set_hidden(s_hint, true);
@@ -92,8 +94,14 @@ void page_host_create(lv_obj_t * parent)
     page_settings.create(s_settings);
     lv_obj_set_hidden(s_settings, true);
 
+    /* Keep the page (and open settings) across a theme rebuild */
+    int start = s_cur;
+    bool settings_open = s_in_settings;
+    s_in_settings = false;
+    s_last = NULL;
     s_cur = 0;
-    show_page(0);
+    show_page(start);
+    if(settings_open) open_settings();
 }
 
 static void open_settings(void)
