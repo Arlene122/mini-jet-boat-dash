@@ -50,6 +50,10 @@ jobs:
         run: |
           mkdir site
           cp build-web/index.html build-web/index.js build-web/index.wasm site/
+          # Cache-bust: stamp the commit into the page and the script URL
+          v=${GITHUB_SHA::7}
+          sed -i "s/__BUILD__/$v/g; s/src=\"\?index\.js\"\?/src=\"index.js?v=$v\"/" site/index.html
+          grep -q "index.js?v=$v" site/index.html
 
       - uses: actions/upload-pages-artifact@v4
         with:

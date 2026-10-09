@@ -48,10 +48,14 @@
   window.addEventListener('keydown', e => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Backspace'].includes(e.key)) e.preventDefault();
   });
+  // __BUILD__ is replaced with the commit id when CI publishes the site, so
+  // browsers always fetch the matching index.js / index.wasm, never a stale copy.
+  var BUILD = '__BUILD__';
   var statusEl = document.getElementById('status');
   var Module = {
     canvas: document.getElementById('canvas'),
-    setStatus: t => { statusEl.textContent = t || 'Running — click the dash, then use the keys below.'; },
+    locateFile: (path, prefix) => prefix + path + '?v=' + BUILD,
+    setStatus: t => { statusEl.textContent = t || 'Running — click the dash, then use the keys below.  (version ' + BUILD + ')'; },
     print: t => console.log(t),
     printErr: t => console.warn(t),
   };
