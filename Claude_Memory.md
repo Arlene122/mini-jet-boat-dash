@@ -6,7 +6,7 @@ _Updated 2026-10-09 · compact, indexed; detail lives in code/README._
 
 ## 1. Status
 - Phase 1–2 (sim) well advanced. Live sim: https://arlene122.github.io/mini-jet-boat-dash/ (deploys from `main`).
-- Work branch `claude/compassionate-mendel-bp8lbr`; PRs #2–#5 merged; PR #6 = luxury pass + Glass theme (open, merge only when owner says).
+- Work branch `claude/compassionate-mendel-bp8lbr`; PRs #2–#6 merged (#6 = luxury pass + Glass theme). Always ask before merging.
 - UI **not locked**; lock before reveal animation.
 
 ## 2. Decisions
