@@ -12,4 +12,7 @@
  * display creation. */
 void ui_init(void);
 
+/* Play the cluster key-on animation (also run by ui_init). */
+void ui_key_on(void);
+
 #endif /* UI_H */

@@ -40,7 +40,7 @@
     <div><kbd>K</kbd> DESS key · <kbd>E</kbd> unplug ECU · <kbd>P</kbd> phone in/out of range</div>
     <div><kbd>1</kbd>–<kbd>5</kbd> engine/oil/overheat/low fuel/low batt</div>
     <div><kbd>0</kbd> clear warnings · <kbd>A</kbd> auto demo</div>
-    <div><kbd>T</kbd> stencil · <kbd>H</kbd> help · <kbd>G</kbd> font comparison</div>
+    <div><kbd>T</kbd> stencil · <kbd>H</kbd> help · <kbd>G</kbd> font comparison · <kbd>I</kbd> replay key-on</div>
   </div>
 </main>
 <script>
@@ -48,10 +48,14 @@
   window.addEventListener('keydown', e => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Backspace'].includes(e.key)) e.preventDefault();
   });
+  // __BUILD__ is replaced with the commit id when CI publishes the site, so
+  // browsers always fetch the matching index.js / index.wasm, never a stale copy.
+  var BUILD = '__BUILD__';
   var statusEl = document.getElementById('status');
   var Module = {
     canvas: document.getElementById('canvas'),
-    setStatus: t => { statusEl.textContent = t || 'Running — click the dash, then use the keys below.'; },
+    locateFile: (path, prefix) => prefix + path + '?v=' + BUILD,
+    setStatus: t => { statusEl.textContent = t || 'Running — click the dash, then use the keys below.  (version ' + BUILD + ')'; },
     print: t => console.log(t),
     printErr: t => console.warn(t),
   };

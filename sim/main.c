@@ -46,6 +46,7 @@ static int key_watch(void * user, SDL_Event * e)
         case SDLK_ESCAPE:    ui_input(UI_IN_BACK); break;
         case SDLK_UP:        ui_input(UI_IN_UP); break;
         case SDLK_DOWN:      ui_input(UI_IN_DOWN); break;
+        case SDLK_i:         ui_key_on(); break;   /* replay key-on animation */
         default: break;
     }
     return 0;
